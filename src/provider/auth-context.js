@@ -67,29 +67,33 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (currUser !== null && isLoggedIn) {
-      firebase
-        .firestore()
-        .collection("admins")
-        .doc(currUser.uid)
-        .onSnapshot(doc => {
-          if (doc.exists) {
-            const userInfo = doc.data()
-            if (userInfo.admin === true) {
-              localEncryptedStore.set("authUser", {
-                admin: currUser.admin,
-                uid: currUser.uid,
-                name: userInfo.name,
-                email: userInfo.email,
-                permissions: userInfo.permissions,
-              })
-              setCurrUser(localEncryptedStore.get("authUser"))
+      try {
+        firebase
+          .firestore()
+          .collection("admins")
+          .doc(currUser.uid)
+          .onSnapshot(doc => {
+            if (doc.exists) {
+              const userInfo = doc.data()
+              if (userInfo.admin === true) {
+                localEncryptedStore.set("authUser", {
+                  admin: currUser.admin,
+                  uid: currUser.uid,
+                  name: userInfo.name,
+                  email: userInfo.email,
+                  permissions: userInfo.permissions,
+                })
+                setCurrUser(localEncryptedStore.get("authUser"))
+              } else {
+                signOut()
+              }
             } else {
               signOut()
             }
-          } else {
-            signOut()
-          }
-        })
+          })
+      } catch {
+        signOut()
+      }
     }
   }, [])
 

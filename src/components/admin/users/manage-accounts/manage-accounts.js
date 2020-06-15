@@ -30,7 +30,7 @@ const ManageAccounts = () => {
     // get users
     let updatedUsers = []
     let updatedAdmins = []
-    if (currUser.permissions.users.manage_accounts) {
+    if (currUser.permissions.manage_user_accounts) {
       firebase
         .firestore()
         .collection("users")
@@ -42,7 +42,7 @@ const ManageAccounts = () => {
           setUsers(updatedUsers.sort(sortUsers))
         })
     }
-    if (currUser.permissions.users.manage_admins) {
+    if (currUser.permissions.manage_admin_accounts) {
       firebase
         .firestore()
         .collection("admins")
@@ -72,7 +72,7 @@ const ManageAccounts = () => {
               return <SingleAccountCard user={user} key={index} />
             })}
           </TabPane>
-          {currUser.permissions.users.manage_admins && (
+          {currUser.permissions.manage_admin_accounts && (
             <TabPane tab="Admins" key="2">
               {admins.map((admin, index) => {
                 return <SingleAdminAccountCard key={index} admin={admin} />

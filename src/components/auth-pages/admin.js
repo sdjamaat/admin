@@ -15,10 +15,6 @@ const momentHijri = require("moment-hijri")
 const { SubMenu } = Menu
 const { Option, OptGroup } = Select
 
-const UsersPanel = () => {
-  return <div>This is the manage users panel.</div>
-}
-
 const AdminMenu = ({
   handleChangePageDesktop,
   handleChangePageMobile,
@@ -42,10 +38,10 @@ const AdminMenu = ({
         selectedKeys={[currMenuItem]}
         mode={width > 991 && "inline"}
       >
-        {currUser.permissions.users.manage_accounts && (
+        {currUser.permissions.manage_user_accounts && (
           <SubMenu key="users" title="Users">
             <Menu.Item key="users-manage-accounts">Manage Accounts</Menu.Item>
-            {currUser.permissions.users.manage_admins && (
+            {currUser.permissions.manage_admin_accounts && (
               <Menu.Item key="users-add-admin-user">Add Admin User</Menu.Item>
             )}
           </SubMenu>
@@ -76,12 +72,12 @@ const AdminMenu = ({
                   style={{ width: "100%" }}
                   onChange={e => handleChangePageMobile(e)}
                 >
-                  {currUser.permissions.users.manage_accounts && (
+                  {currUser.permissions.manage_user_accounts && (
                     <OptGroup label="Users">
                       <Option value="users-manage-accounts">
                         Manage Accounts
                       </Option>
-                      {currUser.permissions.users.manage_admins && (
+                      {currUser.permissions.manage_admin_accounts && (
                         <Option value="users-add-admin-user">
                           Add Admin User
                         </Option>
@@ -116,11 +112,9 @@ const AdminMenu = ({
 }
 
 const Admin = () => {
-  const { currUser } = useContext(AuthContext)
   const [page, setPage] = useState("users-manage-accounts")
   const [menus, setMenus] = useState([])
-  const [users, setUsers] = useState([])
-  const [admins, setAdmins] = useState([])
+
   const [
     shouldFetchMenusFromFirebase,
     setShouldFetchMenusFromFirebase,

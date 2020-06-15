@@ -74,10 +74,8 @@ const AddAdminUser = ({ setPage }) => {
       name: accountDetails.name,
       admin: true,
       permissions: {
-        users: {
-          manage_accounts: true,
-          manage_admins: false,
-        },
+        manage_user_accounts: true,
+        manage_admin_accounts: false,
         fmb: false,
       },
     }

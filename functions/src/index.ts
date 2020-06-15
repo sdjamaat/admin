@@ -93,7 +93,7 @@ export const deleteAdminAccount = functions.https.onCall(
       .collection("admins")
       .doc(callerUID)
       .get()
-    const canManageAdmins = adminData.data().permissions.users.manage_admins
+    const canManageAdmins = adminData.data().permissions.manage_admin_accounts
     if (canManageAdmins === true) {
       await admin.auth().deleteUser(data.user.uid)
       await admin.firestore().collection("admins").doc(data.user.uid).delete()

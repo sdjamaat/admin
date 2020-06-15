@@ -100,7 +100,7 @@ const EditAdminModal = ({ visible, admin, setVisible }) => {
         </Form.Item>
 
         <Form.Item
-          name={["permissions", "users", "manage_accounts"]}
+          name={["permissions", "manage_user_accounts"]}
           label="Manage User Accounts"
           rules={[{ required: true }]}
         >
@@ -110,7 +110,7 @@ const EditAdminModal = ({ visible, admin, setVisible }) => {
           </Select>
         </Form.Item>
         <Form.Item
-          name={["permissions", "users", "manage_admins"]}
+          name={["permissions", "manage_admin_accounts"]}
           label="Manage Admin Accounts"
           rules={[{ required: true }]}
         >
@@ -163,11 +163,11 @@ const SingleAdminAccountCard = ({ admin }) => {
             <ul style={{ paddingLeft: "1.6rem", marginBottom: ".5rem" }}>
               <li>
                 Manage User Accounts:{" "}
-                {admin.permissions.users.manage_accounts ? "True" : "False"}
+                {admin.permissions.manage_user_accounts ? "True" : "False"}
               </li>
               <li>
                 Manage Admin Accounts:{" "}
-                {admin.permissions.users.manage_admins ? "True" : "False"}
+                {admin.permissions.manage_admin_accounts ? "True" : "False"}
               </li>
               <li>
                 Faiz-ul-Mawaid: {admin.permissions.fmb ? "True" : "False"}
