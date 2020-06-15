@@ -1,6 +1,10 @@
 import React from "react"
 import { message, Alert } from "antd"
 
+message.config({
+  top: 200,
+})
+
 const CustomMessage = (type, text, time = 3) => {
   if (type === "error") {
     message.error({
