@@ -2,7 +2,7 @@ import React from "react"
 import { message, Alert } from "antd"
 
 message.config({
-  top: 200,
+  top: 100,
 })
 
 const CustomMessage = (type, text, time = 3) => {
