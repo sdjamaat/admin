@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useContext } from "react"
+import { DateContext } from "../../../../provider/date-context"
 import styled from "styled-components"
 import { Card, Spin, message } from "antd"
 import firebase from "gatsby-plugin-firebase"
@@ -6,10 +7,12 @@ import HijriMonthForm from "./hijri-month-form"
 import MenuItemsForm from "./menu-items-form"
 import ReviewMenu from "./review-menu"
 import CustomMessage from "../../../custom-message"
+import { shortMonthToLongMonth } from "../../../../functions/calendar"
 import { cloneDeep } from "lodash"
 const momentHijri = require("moment-hijri")
 
 const CreateMenu = ({ setPage, refetchMenus }) => {
+  const { getHijriDate } = useContext(DateContext)
   const [step, setstep] = useState("hijrimonth")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [monthsFinished, setMonthsFinished] = useState([])
@@ -20,10 +23,10 @@ const CreateMenu = ({ setPage, refetchMenus }) => {
   const getMonthsFinished = async () => {
     let finishedArr = []
     try {
-      const queryForFmbHijriDoc = await firebase
+      const queryForFmbHijriDoc = firebase
         .firestore()
         .collection("fmb")
-        .doc(momentHijri().iYear().toString())
+        .doc(getHijriDate().year.toString())
 
       const yearCollection = await queryForFmbHijriDoc.get()
       if (yearCollection.exists) {
@@ -45,9 +48,22 @@ const CreateMenu = ({ setPage, refetchMenus }) => {
     getMonthsFinished()
   }, [])
 
+  const sortMenuItemsByDate = (a, b) => {
+    const item1Date = a.date
+    const item2Date = b.date
+
+    let comparison = 0
+    if (item1Date.isAfter(item2Date)) {
+      comparison = 1
+    } else if (item1Date.isBefore(item2Date)) {
+      comparison = -1
+    }
+    return comparison
+  }
+
   const getProcessedMenuItemsArray = () => {
     let newMenuItemsArr = cloneDeep(menuItemsFormValues.items)
-
+    newMenuItemsArr.sort(sortMenuItemsByDate)
     for (let item of newMenuItemsArr) {
       item.date = item.date.format("MM-DD-YYYY")
       item.nothaali = item.nothaali || false
@@ -59,10 +75,10 @@ const CreateMenu = ({ setPage, refetchMenus }) => {
     setIsSubmitting(true)
 
     try {
-      const queryForFmbHijriDoc = await firebase
+      const queryForFmbHijriDoc = firebase
         .firestore()
         .collection("fmb")
-        .doc(momentHijri().iYear().toString())
+        .doc(getHijriDate().year.toString())
 
       await queryForFmbHijriDoc.update({
         finished: firebase.firestore.FieldValue.arrayUnion(
@@ -77,6 +93,11 @@ const CreateMenu = ({ setPage, refetchMenus }) => {
           items: getProcessedMenuItemsArray(),
           status: "queued",
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          displayMonthName: shortMonthToLongMonth(
+            hijriMonthFormValues.hijrimonth
+          ),
+          displayYear: hijriMonthFormValues.year,
+          submissions: [],
         })
       CustomMessage("success", "Successfully created new menu")
       setIsSubmitting(false)

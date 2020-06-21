@@ -9,7 +9,10 @@ import "firebase/database"
 
 import React from "react"
 import { AuthProvider } from "./src/provider/auth-context"
+import { DateProvider } from "./src/provider/date-context"
 
 export const wrapRootElement = ({ element }) => (
-  <AuthProvider>{element}</AuthProvider>
+  <DateProvider>
+    <AuthProvider>{element}</AuthProvider>
+  </DateProvider>
 )

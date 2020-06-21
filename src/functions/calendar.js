@@ -45,4 +45,35 @@ module.exports = {
     "zilhaj",
     "moharram",
   ],
+
+  monthIndexToName: index => {
+    switch (index) {
+      case 0:
+        return { short: "moharram", long: "Moharram al-Haraam" }
+      case 1:
+        return { short: "safar", long: "Safar al-Muzaffar" }
+      case 2:
+        return { short: "rabi1", long: "Rabi al-Awwal" }
+      case 3:
+        return { short: "rabi2", long: "Rabi al-Aakhar" }
+      case 4:
+        return { short: "jumada1", long: "Jumada al-Ula" }
+      case 5:
+        return { short: "jumada2", long: "Jumada al-Ukhra" }
+      case 6:
+        return { short: "rajab", long: "Rajab al-Asab" }
+      case 7:
+        return { short: "shabaan", long: "Shabaan al-Karim" }
+      case 8:
+        return { short: "ramadaan", long: "Ramadaan al-Moazzam" }
+      case 9:
+        return { short: "shawwal", long: "Shawwal al-Mukarram" }
+      case 10:
+        return { short: "zilqadah", long: "Zilqadah al-Haraam" }
+      case 11:
+        return { short: "zilhaj", long: "Zilhaj al-Haraam" }
+      default:
+        return { short: "", long: "" }
+    }
+  },
 }
