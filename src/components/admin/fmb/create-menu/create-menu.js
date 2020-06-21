@@ -26,7 +26,7 @@ const CreateMenu = ({ setPage, refetchMenus }) => {
       const queryForFmbHijriDoc = firebase
         .firestore()
         .collection("fmb")
-        .doc(getHijriDate().year.toString())
+        .doc(getHijriDate().databaseYear.toString())
 
       const yearCollection = await queryForFmbHijriDoc.get()
       if (yearCollection.exists) {
@@ -78,7 +78,7 @@ const CreateMenu = ({ setPage, refetchMenus }) => {
       const queryForFmbHijriDoc = firebase
         .firestore()
         .collection("fmb")
-        .doc(getHijriDate().year.toString())
+        .doc(getHijriDate().databaseYear.toString())
 
       await queryForFmbHijriDoc.update({
         finished: firebase.firestore.FieldValue.arrayUnion(

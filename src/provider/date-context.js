@@ -14,9 +14,9 @@ export const DateContext = createContext(defaultState)
 export const DateProvider = ({ children }) => {
   const getHijriDate = () => {
     const newDate = momentHijri().add(1, "days")
-    let databseYear = newDate.iYear()
+    let databaseYear = newDate.iYear()
     if (newDate.iMonth() === 0) {
-      databseYear = newDate.iYear() - 1
+      databaseYear = newDate.iYear() - 1
     }
     const longMonthName = monthIndexToName(newDate.iMonth()).long
     const shortMonthName = monthIndexToName(newDate.iMonth()).short
@@ -25,7 +25,7 @@ export const DateProvider = ({ children }) => {
       day: newDate.iDate(),
       month: newDate.iMonth(),
       year: newDate.iYear(),
-      databseYear: databseYear,
+      databaseYear: databaseYear,
       shortMonthName: shortMonthName,
       longMonthName: longMonthName,
     }
