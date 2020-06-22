@@ -15,7 +15,7 @@ const DisplaySortedMenus = ({ menus, showConfirmationModal }) => {
   return (
     <>
       <Divider style={{ marginTop: 0 }} orientation="left">
-        Active
+        Accepting Submissions
       </Divider>
       {getActiveMenus.length > 0 ? (
         getActiveMenus.map((menu, index) => {

@@ -18,7 +18,7 @@ const SingleMenu = ({ menu, tagColor, tagName, showConfirmationModal }) => {
                 showConfirmationModal("deactivate", menu.month, true)
               }
             >
-              Deactivate & Archive
+              Close Submissions & Archive
             </Button>
           </Col>
         </>

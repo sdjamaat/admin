@@ -8,6 +8,7 @@ import CreateMenu from "../admin/fmb/create-menu/create-menu"
 import ManageMenus from "../admin/fmb/manage-menus/manage-menus"
 import AddAdminUser from "../admin/users/add-admin-user/add-admin-user"
 import ManageAccounts from "../admin/users/manage-accounts/manage-accounts"
+import ViewSubmissions from "../admin/fmb/view-submissions/view-submissions"
 import CustomMessage from "../custom-message"
 import { AuthContext } from "../../provider/auth-context"
 import firebase from "gatsby-plugin-firebase"
@@ -51,6 +52,7 @@ const AdminMenu = ({
           <SubMenu key="fmb" title="Faiz-ul-Mawaid">
             <Menu.Item key="fmb-create-menu">Create Menu</Menu.Item>
             <Menu.Item key="fmb-manage-menus">Manage Menus</Menu.Item>
+            <Menu.Item key="fmb-view-submissions">View Submissions</Menu.Item>
           </SubMenu>
         )}
       </Menu>
@@ -89,6 +91,9 @@ const AdminMenu = ({
                     <OptGroup label="Faiz-ul-Mawaid">
                       <Option value="fmb-create-menu">Create Menu</Option>
                       <Option value="fmb-manage-menus">Manage Menus</Option>
+                      <Option value="fmb-view-submissions">
+                        View Submissions
+                      </Option>
                     </OptGroup>
                   )}
                 </Select>
@@ -184,6 +189,8 @@ const Admin = () => {
             setMenusInAdminComp={setMenus}
           />
         )
+      case "fmb-view-submissions":
+        return <ViewSubmissions />
       case "users-manage-accounts":
         return <ManageAccounts />
       case "users-add-admin-user":
