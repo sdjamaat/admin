@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useContext } from "react"
-import { Card, Select, Alert, Divider, Collapse } from "antd"
+import { Card, Select, Alert, Divider, Collapse, Button } from "antd"
 import styled from "styled-components"
 import firebase from "gatsby-plugin-firebase"
 import { DateContext } from "../../../../provider/date-context"
 import { shortMonthToLongMonth } from "../../../../functions/calendar"
 const moment = require("moment")
+const xlsx = require("xlsx")
 
 const { Option } = Select
 const { Panel } = Collapse
@@ -41,12 +42,12 @@ const ViewSubmissions = () => {
     setMenusWithSubmissions(filteredMenus)
   }
 
+  // gets submissions for a month when user changes it on the dropdown
+  // param 'index' is the index of the menu in 'menusWithSubmissions'
   const handleChangeMenu = async index => {
     let submissionsArr = []
 
     const shortMonthName = menusWithSubmissions[index].shortMonthName
-    const items = menusWithSubmissions[index].items
-    console.log(shortMonthName, items)
     const submissions = await firebase
       .firestore()
       .collection("fmb")
@@ -57,14 +58,60 @@ const ViewSubmissions = () => {
       .get()
     submissions.forEach(doc => {
       const data = doc.data()
-      submissionsArr.push(data)
+      submissionsArr.push({ ...data, familyid: doc.id })
     })
     setCurrSelectedMenuIndex(index)
     setSubmissions(submissionsArr)
   }
+
+  const getFMBCodes = async () => {
+    let fmbCodes = {}
+    for (let submission of submissions) {
+      const familyDetails = await firebase
+        .firestore()
+        .collection("families")
+        .doc(submission.familyid)
+        .get()
+      const fmbCode = familyDetails.data().fmb.code
+      fmbCodes[submission.familyid] = fmbCode
+    }
+    return fmbCodes
+  }
+
+  const getJSONSheetValues = fmbCodes => {
+    let rows = []
+    const menuItemsForCurrentlySelectedMonth =
+      menusWithSubmissions[currSelectedMenuIndex].items
+    let menuItemIndex = 0
+    for (let menuItem of menuItemsForCurrentlySelectedMonth) {
+      if (!menuItem.nothaali) {
+        for (let submission of submissions) {
+          rows.push({
+            "Menu Item": menuItem.name,
+            Date: menuItem.date,
+            "FMB Code": fmbCodes[submission.familyid],
+            Size: submission.selections[menuItemIndex],
+          })
+        }
+      }
+      menuItemIndex = menuItemIndex + 1
+    }
+    return rows
+  }
+  const exportDataToExcel = async () => {
+    const fmbCodes = await getFMBCodes()
+    const jsonSheetValues = getJSONSheetValues(fmbCodes)
+
+    const newWB = xlsx.utils.book_new()
+    const newWS = xlsx.utils.json_to_sheet(jsonSheetValues)
+    xlsx.utils.book_append_sheet(newWB, newWS, "Test data")
+    xlsx.writeFile(newWB, "Testing.xlsx")
+  }
+
   useEffect(() => {
     getMenusWithSubmissions()
   }, [])
+
   return (
     <ViewSubmissionsWrapper>
       <Card
@@ -91,7 +138,15 @@ const ViewSubmissions = () => {
                 <Collapse onChange={e => console.log(e)}>
                   {submissions.map((submission, index) => {
                     return (
-                      <Panel header={submission.submittedBy.name} key={index}>
+                      <Panel
+                        header={`${submission.submittedBy.lastname} Family`}
+                        key={index}
+                      >
+                        <p style={{ textAlign: "center" }}>
+                          <strong>Submitted by:</strong>{" "}
+                          {submission.submittedBy.firstname}{" "}
+                          {submission.submittedBy.lastname}
+                        </p>
                         {submission.selections.map((selection, index) => {
                           if (selection !== null) {
                             return (
@@ -153,6 +208,12 @@ const ViewSubmissions = () => {
                     )
                   })}
                 </Collapse>
+                <Button
+                  style={{ width: "100%", marginTop: "1.3rem" }}
+                  onClick={exportDataToExcel}
+                >
+                  Export Submission Data
+                </Button>
               </>
             )}
           </>

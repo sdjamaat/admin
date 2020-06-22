@@ -44,7 +44,8 @@
     "react-responsive": "^8.0.3",
     "react-sticky-box": "^0.9.3",
     "secure-ls": "^1.2.6",
-    "styled-components": "^5.1.0"
+    "styled-components": "^5.1.0",
+    "xlsx": "^0.16.2"
   },
   "devDependencies": {
     "kill-port": "^1.6.0",
