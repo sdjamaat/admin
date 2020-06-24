@@ -90,7 +90,7 @@ const ViewSubmissions = () => {
             "Menu Item": menuItem.name,
             Date: menuItem.date,
             "FMB Code": fmbCodes[submission.familyid],
-            Size: submission.selections[menuItemIndex],
+            Size: submission.selections[menuItem.id],
           })
         }
       }
@@ -147,63 +147,63 @@ const ViewSubmissions = () => {
                           {submission.submittedBy.firstname}{" "}
                           {submission.submittedBy.lastname}
                         </p>
-                        {submission.selections.map((selection, index) => {
-                          if (selection !== null) {
-                            return (
-                              <div
-                                key={index}
-                                style={{
-                                  paddingLeft: ".5rem",
-                                  paddingTop: ".5rem",
-                                }}
-                              >
+                        {menusWithSubmissions[currSelectedMenuIndex].items.map(
+                          (item, index) => {
+                            if (!item.nothaali) {
+                              return (
                                 <div
+                                  key={index}
                                   style={{
-                                    borderLeft: "1px solid gray",
-                                    paddingLeft: "1rem",
+                                    paddingLeft: ".5rem",
+                                    paddingTop: ".5rem",
                                   }}
                                 >
                                   <div
                                     style={{
-                                      fontSize: "1.2rem",
-                                      paddingBottom: ".7rem",
+                                      borderLeft: "1px solid gray",
+                                      paddingLeft: "1rem",
                                     }}
                                   >
-                                    {
-                                      menusWithSubmissions[
-                                        currSelectedMenuIndex
-                                      ].items[index].name
-                                    }
+                                    <div
+                                      style={{
+                                        fontSize: "1.2rem",
+                                        paddingBottom: ".7rem",
+                                      }}
+                                    >
+                                      {item.name}
+                                    </div>
+                                    <p
+                                      style={{
+                                        marginBottom: ".2rem",
+                                        marginTop: "-.5rem",
+                                        color: "gray",
+                                      }}
+                                    >
+                                      {moment(item.date, "MM-DD-YYYY").format(
+                                        "dddd, MMMM Do YYYY"
+                                      )}
+                                    </p>
+                                    <p
+                                      style={{
+                                        color: "gray",
+                                        paddingBottom: ".2rem",
+                                      }}
+                                    >
+                                      Size:{" "}
+                                      {submission.selections.hasOwnProperty(
+                                        item.id
+                                      )
+                                        ? submission.selections[item.id]
+                                        : "Not Found"}
+                                    </p>
                                   </div>
-                                  <p
-                                    style={{
-                                      marginBottom: ".2rem",
-                                      marginTop: "-.5rem",
-                                      color: "gray",
-                                    }}
-                                  >
-                                    {moment(
-                                      menusWithSubmissions[
-                                        currSelectedMenuIndex
-                                      ].items[index].date,
-                                      "MM-DD-YYYY"
-                                    ).format("dddd, MMMM Do YYYY")}
-                                  </p>
-                                  <p
-                                    style={{
-                                      color: "gray",
-                                      paddingBottom: ".2rem",
-                                    }}
-                                  >
-                                    Size: {selection}
-                                  </p>
                                 </div>
-                              </div>
-                            )
-                          } else {
-                            return null
+                              )
+                            } else {
+                              return null
+                            }
                           }
-                        })}
+                        )}
                       </Panel>
                     )
                   })}

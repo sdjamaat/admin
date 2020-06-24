@@ -1,14 +1,19 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useContext } from "react"
 import { Alert, message, Card, Divider, Modal } from "antd"
 import styled from "styled-components"
 import SingleMenu from "./single-menu"
 import { cloneDeep } from "lodash"
 import firebase from "gatsby-plugin-firebase"
 import CustomMessage from "../../../custom-message"
-const momentHijri = require("moment-hijri")
+import { DateContext } from "../../../../provider/date-context"
+const moment = require("moment")
 const { confirm } = Modal
 
-const DisplaySortedMenus = ({ menus, showConfirmationModal }) => {
+const DisplaySortedMenus = ({
+  menus,
+  showConfirmationModal,
+  editMenuItemModal,
+}) => {
   const getActiveMenus = menus.filter(x => x.status === "active")
   const getQueuedMenus = menus.filter(x => x.status === "queued")
   const getArchivedMenus = menus.filter(x => x.status === "archived")
@@ -27,6 +32,7 @@ const DisplaySortedMenus = ({ menus, showConfirmationModal }) => {
                 tagName="Active"
                 key={index}
                 showConfirmationModal={showConfirmationModal}
+                editMenuItemModal={editMenuItemModal}
               />
             )
           } else {
@@ -54,6 +60,7 @@ const DisplaySortedMenus = ({ menus, showConfirmationModal }) => {
                 tagName="Queued"
                 key={index}
                 showConfirmationModal={showConfirmationModal}
+                editMenuItemModal={editMenuItemModal}
               />
             )
           } else {
@@ -80,6 +87,7 @@ const DisplaySortedMenus = ({ menus, showConfirmationModal }) => {
                 tagName="Archived"
                 key={index}
                 showConfirmationModal={showConfirmationModal}
+                editMenuItemModal={editMenuItemModal}
               />
             )
           } else {
@@ -99,6 +107,76 @@ const DisplaySortedMenus = ({ menus, showConfirmationModal }) => {
 
 const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
   const [menusFromAdminComp, setMenusFromAdminComp] = useState(null)
+
+  const { getHijriDate } = useContext(DateContext)
+
+  const sortMenuItemsByDate = (a, b) => {
+    const item1Date = moment(a.date, "MM-DD-YYYY")
+    const item2Date = moment(b.date, "MM-DD-YYYY")
+
+    let comparison = 0
+    if (item1Date.isAfter(item2Date)) {
+      comparison = 1
+    } else if (item1Date.isBefore(item2Date)) {
+      comparison = -1
+    }
+    return comparison
+  }
+
+  const editMenuItemModal = async (menuMonth, itemID, newValues) => {
+    //console.log(menuMonth)
+    //console.log(newValues)
+
+    for (let i = 0; i < menusFromAdminComp.length; i++) {
+      if (menuMonth === menusFromAdminComp[i].month) {
+        let newMenuItemsArr = cloneDeep(menusFromAdminComp[i])
+        for (let item of newMenuItemsArr.items) {
+          if (item.id === itemID) {
+            //check if anything has changed
+            if (
+              item.date !== newValues.date.format("MM-DD-YYYY") ||
+              item.nothaali !== newValues.nothaali ||
+              item.name !== newValues.name
+            ) {
+              // set new values
+              item.date = newValues.date.format("MM-DD-YYYY")
+              item.nothaali = newValues.nothaali
+              item.name = newValues.name
+
+              // sort by date
+              newMenuItemsArr.items.sort(sortMenuItemsByDate)
+
+              // change the menus array which contains menus from multiple months
+              // we're just targeting one month, but must update the entire thing at one time
+              let newAllMenusArr = cloneDeep(menusFromAdminComp)
+              newAllMenusArr[i].items = newMenuItemsArr.items
+
+              // push updates to items array in firebase
+              try {
+                await firebase
+                  .firestore()
+                  .collection("fmb")
+                  .doc(getHijriDate().databaseYear.toString())
+                  .collection("menus")
+                  .doc(menuMonth)
+                  .update({
+                    items: newMenuItemsArr.items,
+                  })
+
+                // set new menus array in our component and it's parent component
+                setMenusFromAdminComp(newAllMenusArr)
+                setMenusInAdminComp(newAllMenusArr)
+                CustomMessage("success", "Successfully updated item")
+              } catch (error) {
+                CustomMessage("error", "Could not update item")
+              }
+            }
+            return
+          }
+        }
+      }
+    }
+  }
 
   const showConfirmationModal = (
     text,
@@ -141,7 +219,7 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
             await firebase
               .firestore()
               .collection("fmb")
-              .doc(momentHijri().iYear().toString())
+              .doc(getHijriDate().databaseYear.toString())
               .collection("menus")
               .doc(month)
               .update({
@@ -151,7 +229,7 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
               await firebase
                 .firestore()
                 .collection("fmb")
-                .doc(momentHijri().iYear().toString())
+                .doc(getHijriDate().databaseYear.toString())
                 .update({
                   activeMenu: isDeactivating ? null : month,
                 })
@@ -166,7 +244,7 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
             await firebase
               .firestore()
               .collection("fmb")
-              .doc(momentHijri().iYear().toString())
+              .doc(getHijriDate().databaseYear.toString())
               .update({
                 finished: firebase.firestore.FieldValue.arrayRemove(month),
               })
@@ -174,7 +252,7 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
             await firebase
               .firestore()
               .collection("fmb")
-              .doc(momentHijri().iYear().toString())
+              .doc(getHijriDate().databaseYear.toString())
               .collection("menus")
               .doc(month)
               .delete()
@@ -219,6 +297,7 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
         <DisplaySortedMenus
           menus={menus}
           showConfirmationModal={showConfirmationModal}
+          editMenuItemModal={editMenuItemModal}
         />
       )
     }

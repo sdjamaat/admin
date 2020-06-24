@@ -61,12 +61,20 @@ const CreateMenu = ({ setPage, refetchMenus }) => {
     return comparison
   }
 
+  const generateUniqueIDForItem = () => {
+    return Array(15)
+      .fill(0)
+      .map(x => Math.random().toString(36).charAt(2))
+      .join("")
+  }
+
   const getProcessedMenuItemsArray = () => {
     let newMenuItemsArr = cloneDeep(menuItemsFormValues.items)
     newMenuItemsArr.sort(sortMenuItemsByDate)
     for (let item of newMenuItemsArr) {
       item.date = item.date.format("MM-DD-YYYY")
       item.nothaali = item.nothaali || false
+      item.id = generateUniqueIDForItem()
     }
     return newMenuItemsArr
   }
