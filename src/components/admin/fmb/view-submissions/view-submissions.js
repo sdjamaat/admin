@@ -11,35 +11,39 @@ const { Option } = Select
 const { Panel } = Collapse
 
 const ViewSubmissions = () => {
-  const [menusWithSubmissions, setMenusWithSubmissions] = useState([])
+  const [menusWithSubmissions, setMenusWithSubmissions] = useState(null)
   const [submissions, setSubmissions] = useState([])
   const [currSelectedMenuIndex, setCurrSelectedMenuIndex] = useState(0)
   const { getHijriDate } = useContext(DateContext)
 
   const getMenusWithSubmissions = async () => {
-    let filteredMenus = []
-    const menus = await firebase
-      .firestore()
-      .collection("fmb")
-      .doc(getHijriDate().databaseYear.toString())
-      .collection("menus")
-      .get()
+    try {
+      let filteredMenus = []
+      const menus = await firebase
+        .firestore()
+        .collection("fmb")
+        .doc(getHijriDate().databaseYear.toString())
+        .collection("menus")
+        .get()
 
-    // for each menu, check if it has any submissions. If it does, put it in the drop down
-    // no querying for submissions yet, only if the user clicks on it
-    menus.forEach(doc => {
-      const shortMonthName = doc.id
-      const data = doc.data()
-      if (data.submissions.length > 0) {
-        filteredMenus.push({
-          shortMonthName: shortMonthName,
-          longMonthName: shortMonthToLongMonth(shortMonthName),
-          items: data.items,
-        })
-      }
-    })
+      // for each menu, check if it has any submissions. If it does, put it in the drop down
+      // no querying for submissions yet, only if the user clicks on it
+      menus.forEach(doc => {
+        const shortMonthName = doc.id
+        const data = doc.data()
+        if (data.submissions.length > 0) {
+          filteredMenus.push({
+            shortMonthName: shortMonthName,
+            longMonthName: shortMonthToLongMonth(shortMonthName),
+            items: data.items,
+          })
+        }
+      })
 
-    setMenusWithSubmissions(filteredMenus)
+      setMenusWithSubmissions(filteredMenus)
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   // gets submissions for a month when user changes it on the dropdown
@@ -79,33 +83,100 @@ const ViewSubmissions = () => {
   }
 
   const getJSONSheetValues = fmbCodes => {
-    let rows = []
+    let menuItemSizesToFMBCodesRows = []
+    let menuItemToTotalsRows = []
     const menuItemsForCurrentlySelectedMonth =
       menusWithSubmissions[currSelectedMenuIndex].items
     let menuItemIndex = 0
     for (let menuItem of menuItemsForCurrentlySelectedMonth) {
       if (!menuItem.nothaali) {
+        let counts = {
+          Item: menuItem.name,
+          Date: menuItem.date,
+          Full: 0,
+          Half: 0,
+          Quarter: 0,
+        }
         for (let submission of submissions) {
-          rows.push({
-            "Menu Item": menuItem.name,
+          let size = submission.selections[menuItem.id]
+          if (size === "Barakati") size = "Quarter"
+          if (size === "No Thaali") size = "None"
+          if (size !== "None") counts[size] = counts[size] + 1
+          menuItemSizesToFMBCodesRows.push({
+            Item: menuItem.name,
             Date: menuItem.date,
-            "FMB Code": fmbCodes[submission.familyid],
-            Size: submission.selections[menuItem.id],
+            Code: fmbCodes[submission.familyid],
+            Size: size,
           })
         }
+        menuItemToTotalsRows.push(counts)
       }
       menuItemIndex = menuItemIndex + 1
     }
-    return rows
+    return {
+      sizes: menuItemSizesToFMBCodesRows,
+      totals: menuItemToTotalsRows,
+    }
   }
   const exportDataToExcel = async () => {
-    const fmbCodes = await getFMBCodes()
-    const jsonSheetValues = getJSONSheetValues(fmbCodes)
+    const displayMonthName =
+      menusWithSubmissions[currSelectedMenuIndex].longMonthName
+    const currentTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss a")
 
+    const fmbCodes = await getFMBCodes()
+    const { sizes, totals } = getJSONSheetValues(fmbCodes)
+    sizes[0]["Export Timestamp"] = currentTime
+
+    const fitToColumn = data => {
+      const columnWidths = []
+      for (const property in data[0]) {
+        columnWidths.push({
+          wch: Math.max(
+            property ? property.toString().length : 0,
+            ...data.map(obj =>
+              obj[property] ? obj[property].toString().length : 0
+            )
+          ),
+        })
+      }
+      return columnWidths
+    }
+
+    const getMergedRowIndicies = async () => {
+      let mergeArr = []
+      let currRow = 1
+      for (let item of menusWithSubmissions[currSelectedMenuIndex].items) {
+        if (!item.nothaali) {
+          let rowStart = currRow
+          let rowEnd = currRow + submissions.length - 1
+
+          // for item name
+          mergeArr.push({ s: { r: rowStart, c: 0 }, e: { r: rowEnd, c: 0 } })
+
+          // for item date
+          mergeArr.push({ s: { r: rowStart, c: 1 }, e: { r: rowEnd, c: 1 } })
+
+          currRow = rowEnd + 1
+        }
+      }
+      return mergeArr
+    }
+
+    const merged = await getMergedRowIndicies()
     const newWB = xlsx.utils.book_new()
-    const newWS = xlsx.utils.json_to_sheet(jsonSheetValues)
-    xlsx.utils.book_append_sheet(newWB, newWS, "Test data")
-    xlsx.writeFile(newWB, "Testing.xlsx")
+    let sizesWorkSheet = xlsx.utils.json_to_sheet(sizes)
+    sizesWorkSheet["!merges"] = merged
+    sizesWorkSheet["!cols"] = fitToColumn(sizes)
+
+    let totalsWorkSheet = xlsx.utils.json_to_sheet(totals)
+    totalsWorkSheet["!cols"] = fitToColumn(totals)
+
+    xlsx.utils.book_append_sheet(newWB, sizesWorkSheet, "Sizes")
+    xlsx.utils.book_append_sheet(newWB, totalsWorkSheet, "Totals")
+    xlsx.writeFile(
+      newWB,
+      `${displayMonthName}_${moment().format("dddd MMMM Do YYYY h:mm:ss")}.xlsx`
+    )
   }
 
   useEffect(() => {
@@ -118,7 +189,9 @@ const ViewSubmissions = () => {
         title="View Menu Submissions"
         headStyle={{ fontSize: "1.5rem", textAlign: "center" }}
       >
-        {menusWithSubmissions.length > 0 ? (
+        {menusWithSubmissions === null ? (
+          <div>Loading...</div>
+        ) : menusWithSubmissions.length > 0 ? (
           <>
             <div style={{ paddingBottom: ".5rem" }}>Choose Month:</div>
             <Select style={{ width: "100%" }} onChange={handleChangeMenu}>
@@ -135,12 +208,12 @@ const ViewSubmissions = () => {
                 <Divider style={{ paddingTop: ".5rem" }} orientation="left">
                   Submissions
                 </Divider>
-                <Collapse onChange={e => console.log(e)}>
-                  {submissions.map((submission, index) => {
-                    return (
+
+                {submissions.map((submission, index) => {
+                  return (
+                    <Collapse style={{ marginBottom: ".5rem" }} key={index}>
                       <Panel
                         header={`${submission.submittedBy.lastname} Family`}
-                        key={index}
                       >
                         <p style={{ textAlign: "center" }}>
                           <strong>Submitted by:</strong>{" "}
@@ -205,11 +278,12 @@ const ViewSubmissions = () => {
                           }
                         )}
                       </Panel>
-                    )
-                  })}
-                </Collapse>
+                    </Collapse>
+                  )
+                })}
+
                 <Button
-                  style={{ width: "100%", marginTop: "1.3rem" }}
+                  style={{ width: "100%", marginTop: ".3rem" }}
                   onClick={exportDataToExcel}
                 >
                   Export Submission Data
