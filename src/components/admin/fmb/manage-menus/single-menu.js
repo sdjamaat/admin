@@ -144,33 +144,35 @@ const SingleMenu = ({
                       </ul>
                     </Col>
 
-                    <Col className="my-auto" xs={12} sm={4}>
-                      <div
-                        style={{
-                          margin: "-.2rem .3rem 0rem .3rem",
-                        }}
-                      >
-                        <Button
-                          className="align-middle"
-                          variant="outline-warning"
-                          onClick={() => {
-                            setNameFieldDisabled(item.nothaali)
-                            editMenuItemForm.setFieldsValue({
-                              name: item.name,
-                              date: moment(item.date, "MM-DD-YYYY"),
-                              nothaali: item.nothaali,
-                            })
-                            setCurrentlyEditingMenuItemDetails({
-                              monthName: menu.month,
-                              itemID: item.id,
-                            })
-                            setShowEditMenuItemModal(true)
+                    {tagName !== "Active" && (
+                      <Col className="my-auto" xs={12} sm={4}>
+                        <div
+                          style={{
+                            margin: "-.2rem .3rem 0rem .3rem",
                           }}
                         >
-                          Edit
-                        </Button>
-                      </div>
-                    </Col>
+                          <Button
+                            className="align-middle"
+                            variant="outline-warning"
+                            onClick={() => {
+                              setNameFieldDisabled(item.nothaali)
+                              editMenuItemForm.setFieldsValue({
+                                name: item.name,
+                                date: moment(item.date, "MM-DD-YYYY"),
+                                nothaali: item.nothaali,
+                              })
+                              setCurrentlyEditingMenuItemDetails({
+                                monthName: menu.month,
+                                itemID: item.id,
+                              })
+                              setShowEditMenuItemModal(true)
+                            }}
+                          >
+                            Edit
+                          </Button>
+                        </div>
+                      </Col>
+                    )}
                   </Row>
                 </div>
               )
