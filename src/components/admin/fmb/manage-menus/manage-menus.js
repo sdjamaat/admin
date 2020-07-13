@@ -124,9 +124,6 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
   }
 
   const editMenuItemModal = async (menuMonth, itemID, newValues) => {
-    //console.log(menuMonth)
-    //console.log(newValues)
-
     for (let i = 0; i < menusFromAdminComp.length; i++) {
       if (menuMonth === menusFromAdminComp[i].month) {
         let newMenuItemsArr = cloneDeep(menusFromAdminComp[i])
@@ -136,12 +133,14 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
             if (
               item.date !== newValues.date.format("MM-DD-YYYY") ||
               item.nothaali !== newValues.nothaali ||
-              item.name !== newValues.name
+              item.name !== newValues.name ||
+              item.reasonNoThaali !== newValues.reasonNoThaali
             ) {
               // set new values
               item.date = newValues.date.format("MM-DD-YYYY")
               item.nothaali = newValues.nothaali
               item.name = newValues.name
+              item.reasonNoThaali = newValues.reasonNoThaali || null
 
               // sort by date
               newMenuItemsArr.items.sort(sortMenuItemsByDate)
@@ -168,6 +167,7 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
                 setMenusInAdminComp(newAllMenusArr)
                 CustomMessage("success", "Successfully updated item")
               } catch (error) {
+                console.log(error)
                 CustomMessage("error", "Could not update item")
               }
             }

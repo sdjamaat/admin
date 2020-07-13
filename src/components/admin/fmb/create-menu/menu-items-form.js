@@ -173,6 +173,24 @@ const MenuItemsForm = ({
                         style={{ width: "100%", paddingBottom: ".4rem" }}
                       />
                     </Form.Item>
+
+                    {disabledItems.includes(field.name) && (
+                      <Form.Item
+                        {...field}
+                        name={[field.name, "reasonNoThaali"]}
+                        fieldKey={[field.fieldKey, "reasonNoThaali"]}
+                        validateTrigger={["onChange", "onBlur"]}
+                        rules={[
+                          {
+                            whitespace: true,
+                            message: "Please input reason for no thaali",
+                          },
+                        ]}
+                        style={{ marginBottom: ".5rem" }}
+                      >
+                        <Input placeholder="Reason for no thaali (optional)" />
+                      </Form.Item>
+                    )}
                     <Row>
                       <Col xs={7} sm={8}>
                         <Form.Item

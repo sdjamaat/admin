@@ -140,6 +140,14 @@ const SingleMenu = ({
                         <li>
                           {item.nothaali ? "No Thaali" : `Name: ${item.name}`}
                         </li>
+                        {item.nothaali && (
+                          <li>
+                            Reason:{" "}
+                            {item.reasonNoThaali
+                              ? item.reasonNoThaali
+                              : "None provided"}
+                          </li>
+                        )}
                         <li>Date: {item.date}</li>
                       </ul>
                     </Col>
@@ -160,6 +168,7 @@ const SingleMenu = ({
                                 name: item.name,
                                 date: moment(item.date, "MM-DD-YYYY"),
                                 nothaali: item.nothaali,
+                                reasonNoThaali: item.reasonNoThaali,
                               })
                               setCurrentlyEditingMenuItemDetails({
                                 monthName: menu.month,
@@ -229,7 +238,6 @@ const SingleMenu = ({
             rules={[
               {
                 required: true,
-
                 message: "Please input menu item date",
               },
             ]}
@@ -240,6 +248,20 @@ const SingleMenu = ({
               style={{ width: "100%", paddingBottom: ".4rem" }}
             />
           </Form.Item>
+          {nameFieldDisabled && (
+            <Form.Item
+              name="reasonNoThaali"
+              rules={[
+                {
+                  whitespace: true,
+                  message: "Please input reason for no thaali",
+                },
+              ]}
+              style={{ marginBottom: ".5rem" }}
+            >
+              <Input placeholder="Reason for no thaali (optional)" />
+            </Form.Item>
+          )}
           <Form.Item
             name="nothaali"
             valuePropName="checked"

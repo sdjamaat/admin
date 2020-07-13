@@ -32,9 +32,15 @@ const ReviewMenu = ({ setStep, hijrimonthForm, menuitemsForm, submitMenu }) => {
             <div key={index}>
               Item #{index + 1}
               <ul style={{ paddingLeft: "1.6rem" }}>
-                <li>
-                  {item.name === "None" ? "No Thaali" : `Name: ${item.name}`}
-                </li>
+                <li>{item.nothaali ? "No Thaali" : `Name: ${item.name}`}</li>
+                {item.nothaali && (
+                  <li>
+                    Reason:{" "}
+                    {item.reasonNoThaali
+                      ? item.reasonNoThaali
+                      : "None provided"}
+                  </li>
+                )}
                 <li>Date: {item.date.format("MM-DD-YYYY")}</li>
               </ul>
             </div>
