@@ -56,16 +56,6 @@ const Navigation = ({ logo }) => {
                       className="dropdown navlink"
                       style={{ color: "gray" }}
                       as={Link}
-                      to="/auth/profile"
-                      onClick={() => setNavExpanded(false)}
-                    >
-                      Profile
-                    </NavDropdown.Item>
-
-                    <NavDropdown.Item
-                      className="dropdown navlink"
-                      style={{ color: "gray" }}
-                      as={Link}
                       to="/auth/admin"
                       onClick={() => setNavExpanded(false)}
                     >

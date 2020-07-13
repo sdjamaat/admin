@@ -60,7 +60,7 @@ const LoginForm = () => {
 
   useComponentWillMount(() => {
     if (isLoggedIn) {
-      navigate("/auth/profile")
+      navigate("/auth/admin")
     }
   })
   const [form] = Form.useForm()

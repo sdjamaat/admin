@@ -93,7 +93,7 @@ const ManageEnrollments = () => {
                         </Col>
                         <Col className="my-auto" sm={12} md={4}>
                           <Button
-                            className="align-middle"
+                            className="align-middle mt-1"
                             variant="outline-warning"
                             onClick={() => {
                               setCodeAndThaaliSizeDisabled(!family.fmb.enrolled)
@@ -140,7 +140,7 @@ const ManageEnrollments = () => {
                         </Col>
                         <Col className="my-auto" sm={12} md={4}>
                           <Button
-                            className="align-middle"
+                            className="align-middle mt-1"
                             variant="outline-warning"
                             onClick={() => {
                               setCodeAndThaaliSizeDisabled(!family.fmb.enrolled)
@@ -203,7 +203,7 @@ const ManageEnrollments = () => {
         </h5>
         <Form {...layout} form={editFamilyDetailsForm} hideRequiredMark={true}>
           <Form.Item
-            label="Enrollment status"
+            label="Enrolled?"
             name="enrolled"
             rules={[
               {
@@ -214,8 +214,8 @@ const ManageEnrollments = () => {
             style={{ marginBottom: ".5rem" }}
           >
             <Select onChange={e => handleEnrolledToggle(e)}>
-              <Select.Option value={true}>True</Select.Option>
-              <Select.Option value={false}>False</Select.Option>
+              <Select.Option value={true}>Yes</Select.Option>
+              <Select.Option value={false}>No</Select.Option>
             </Select>
           </Form.Item>
 
