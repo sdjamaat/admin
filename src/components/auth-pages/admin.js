@@ -9,6 +9,7 @@ import ManageMenus from "../admin/fmb/manage-menus/manage-menus"
 import AddAdminUser from "../admin/users/add-admin-user/add-admin-user"
 import ManageAccounts from "../admin/users/manage-accounts/manage-accounts"
 import ViewSubmissions from "../admin/fmb/view-submissions/view-submissions"
+import ManageEnrollments from "../admin/fmb/manage-enrollments/manage-enrollments"
 import CustomMessage from "../custom-message"
 import { AuthContext } from "../../provider/auth-context"
 import firebase from "gatsby-plugin-firebase"
@@ -53,6 +54,9 @@ const AdminMenu = ({
             <Menu.Item key="fmb-create-menu">Create Menu</Menu.Item>
             <Menu.Item key="fmb-manage-menus">Manage Menus</Menu.Item>
             <Menu.Item key="fmb-view-submissions">View Submissions</Menu.Item>
+            <Menu.Item key="fmb-manage-enrollments">
+              Manage Enrollments
+            </Menu.Item>
           </SubMenu>
         )}
       </Menu>
@@ -93,6 +97,9 @@ const AdminMenu = ({
                       <Option value="fmb-manage-menus">Manage Menus</Option>
                       <Option value="fmb-view-submissions">
                         View Submissions
+                      </Option>
+                      <Option value="fmb-manage-enrollments">
+                        Manage Enrollments
                       </Option>
                     </OptGroup>
                   )}
@@ -191,10 +198,13 @@ const Admin = () => {
         )
       case "fmb-view-submissions":
         return <ViewSubmissions />
+      case "fmb-manage-enrollments":
+        return <ManageEnrollments />
       case "users-manage-accounts":
         return <ManageAccounts />
       case "users-add-admin-user":
         return <AddAdminUser setPage={setPage} />
+
       default:
         return <div>Welcome to the Admin Panel</div>
     }
