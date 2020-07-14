@@ -68,64 +68,81 @@ const ViewSubmissions = () => {
     setSubmissions(submissionsArr)
   }
 
-  const getFMBCodes = async () => {
-    let fmbCodes = {}
-    for (let submission of submissions) {
-      const familyDetails = await firebase
-        .firestore()
-        .collection("families")
-        .doc(submission.familyid)
-        .get()
-      const fmbCode = familyDetails.data().fmb.code
-      fmbCodes[submission.familyid] = fmbCode
+  const sortSelectionsByThaaliSize = (a, b) => {
+    const item1Size = a.Size
+    const item2Size = b.Size
+
+    let comparison = 0
+    if (
+      (item1Size === "Full" && item2Size === "Half") ||
+      item2Size === "Quarter"
+    ) {
+      comparison = 1
+    } else if (item1Size === "Half" && item2Size === "Quarter") {
+      comparison = 1
+    } else if (item1Size === "Half" && item2Size === "Full") {
+      comparison = -1
+    } else if (
+      (item1Size === "Quarter" && item2Size === "Full") ||
+      item2Size === "Half"
+    ) {
+      comparison = -1
     }
-    return fmbCodes
+    return comparison
   }
 
-  const getJSONSheetValues = fmbCodes => {
-    let menuItemSizesToFMBCodesRows = []
+  const getJSONSheetValues = () => {
+    let menuItemSizesToFMBCodes = []
     let menuItemToTotalsRows = []
     const menuItemsForCurrentlySelectedMonth =
       menusWithSubmissions[currSelectedMenuIndex].items
     let menuItemIndex = 0
     for (let menuItem of menuItemsForCurrentlySelectedMonth) {
+      let menuItemSheet = {
+        item: menuItem.name,
+        date: menuItem.date,
+        name: `${menuItem.name} (${menuItem.date})`,
+        rows: [],
+      }
       if (!menuItem.nothaali) {
         let counts = {
           Item: menuItem.name,
           Date: menuItem.date,
-          Full: 0,
-          Half: 0,
           Quarter: 0,
+          Half: 0,
+          Full: 0,
         }
         for (let submission of submissions) {
           let size = submission.selections[menuItem.id]
           if (size === "Barakati") size = "Quarter"
           if (size === "No Thaali") size = "None"
-          if (size !== "None") counts[size] = counts[size] + 1
-          menuItemSizesToFMBCodesRows.push({
-            Item: menuItem.name,
-            Date: menuItem.date,
-            Code: fmbCodes[submission.familyid],
-            Size: size,
-          })
+          if (size !== "None") {
+            counts[size] = counts[size] + 1
+            menuItemSheet.rows.push({
+              Code: submission.code,
+              Size: size,
+            })
+          }
         }
+        menuItemSheet.rows.sort(sortSelectionsByThaaliSize)
+        menuItemSizesToFMBCodes.push(menuItemSheet)
         menuItemToTotalsRows.push(counts)
       }
       menuItemIndex = menuItemIndex + 1
     }
     return {
-      sizes: menuItemSizesToFMBCodesRows,
+      menuItemSheets: menuItemSizesToFMBCodes,
       totals: menuItemToTotalsRows,
     }
   }
+
   const exportDataToExcel = async () => {
     const displayMonthName =
       menusWithSubmissions[currSelectedMenuIndex].longMonthName
     const currentTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss a")
 
-    const fmbCodes = await getFMBCodes()
-    const { sizes, totals } = getJSONSheetValues(fmbCodes)
-    sizes[0]["Export Timestamp"] = currentTime
+    const { menuItemSheets, totals } = getJSONSheetValues()
+    totals[0]["Export Timestamp"] = currentTime
 
     const fitToColumn = data => {
       const columnWidths = []
@@ -142,37 +159,45 @@ const ViewSubmissions = () => {
       return columnWidths
     }
 
-    const getMergedRowIndicies = async () => {
-      let mergeArr = []
-      let currRow = 1
-      for (let item of menusWithSubmissions[currSelectedMenuIndex].items) {
-        if (!item.nothaali) {
-          let rowStart = currRow
-          let rowEnd = currRow + submissions.length - 1
+    // const getMergedRowIndicies = async () => {
+    //   let mergeArr = []
+    //   let currRow = 1
+    //   for (let item of menusWithSubmissions[currSelectedMenuIndex].items) {
+    //     if (!item.nothaali) {
+    //       let rowStart = currRow
+    //       let rowEnd = currRow + submissions.length - 1
 
-          // for item name
-          mergeArr.push({ s: { r: rowStart, c: 0 }, e: { r: rowEnd, c: 0 } })
+    //       // for item name
+    //       mergeArr.push({ s: { r: rowStart, c: 0 }, e: { r: rowEnd, c: 0 } })
 
-          // for item date
-          mergeArr.push({ s: { r: rowStart, c: 1 }, e: { r: rowEnd, c: 1 } })
+    //       // for item date
+    //       mergeArr.push({ s: { r: rowStart, c: 1 }, e: { r: rowEnd, c: 1 } })
 
-          currRow = rowEnd + 1
-        }
-      }
-      return mergeArr
-    }
+    //       currRow = rowEnd + 1
+    //     }
+    //   }
+    //   return mergeArr
+    // }
 
-    const merged = await getMergedRowIndicies()
+    //const merged = await getMergedRowIndicies()
     const newWB = xlsx.utils.book_new()
-    let sizesWorkSheet = xlsx.utils.json_to_sheet(sizes)
-    sizesWorkSheet["!merges"] = merged
-    sizesWorkSheet["!cols"] = fitToColumn(sizes)
 
     let totalsWorkSheet = xlsx.utils.json_to_sheet(totals)
     totalsWorkSheet["!cols"] = fitToColumn(totals)
-
-    xlsx.utils.book_append_sheet(newWB, sizesWorkSheet, "Sizes")
     xlsx.utils.book_append_sheet(newWB, totalsWorkSheet, "Totals")
+
+    for (let menuItemSheet of menuItemSheets) {
+      const firstRow = menuItemSheet.rows[0]
+      menuItemSheet.rows[0] = {
+        Item: menuItemSheet.item,
+        Date: menuItemSheet.date,
+        ...firstRow,
+      }
+      let sheet = xlsx.utils.json_to_sheet(menuItemSheet.rows)
+      sheet["!cols"] = fitToColumn(menuItemSheet.rows)
+      xlsx.utils.book_append_sheet(newWB, sheet, menuItemSheet.name)
+    }
+
     xlsx.writeFile(
       newWB,
       `${displayMonthName}_${moment().format("dddd MMMM Do YYYY h:mm:ss")}.xlsx`
@@ -212,9 +237,7 @@ const ViewSubmissions = () => {
                 {submissions.map((submission, index) => {
                   return (
                     <Collapse style={{ marginBottom: ".5rem" }} key={index}>
-                      <Panel
-                        header={`${submission.submittedBy.lastname} Family`}
-                      >
+                      <Panel header={submission.familyDisplayName}>
                         <p style={{ textAlign: "center" }}>
                           <strong>Submitted by:</strong>{" "}
                           {submission.submittedBy.firstname}{" "}
