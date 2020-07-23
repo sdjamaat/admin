@@ -1,11 +1,12 @@
 import * as functions from "firebase-functions"
-import * as sendGridMail from "@sendgrid/mail"
+const sgMail = require("@sendgrid/mail")
 import * as admin from "firebase-admin"
 admin.initializeApp(functions.config().firebase)
 
 // sendgrid key
 const API_KEY =
   "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"
+sgMail.setApiKey(API_KEY)
 
 // template for contact us submission email that is sent to jamaat admins
 const TEMPLATE_ID_CONTACT_US_JAMAAT = "d-4809086ff8aa47028fb49d949a05198e"
@@ -50,10 +51,9 @@ export const newContactFormSubmission = functions.firestore
       },
     }
     // set the api key for sendgrid
-    sendGridMail.setApiKey(API_KEY)
     return Promise.all([
-      sendGridMail.sendMultiple(jamaat_email),
-      sendGridMail.send(reciept_email),
+      sgMail.sendMultiple(jamaat_email),
+      sgMail.send(reciept_email),
     ])
   })
 
@@ -77,9 +77,7 @@ export const newUserRegistration = functions.firestore
         familyhead: submission.familyhead ? "Yes" : "No",
       },
     }
-    // set the api key for sendgrid
-    sendGridMail.setApiKey(API_KEY)
-    return Promise.all([sendGridMail.sendMultiple(jamaat_email)])
+    return Promise.all([sgMail.sendMultiple(jamaat_email)])
   })
 
 /*
