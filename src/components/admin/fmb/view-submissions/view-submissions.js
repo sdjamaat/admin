@@ -74,6 +74,16 @@ const ViewSubmissions = () => {
 
     let comparison = 0
     if (
+      item1Size === "None" &&
+      (item2Size === "Full" || item2Size === "Half" || item2Size === "Quarter")
+    ) {
+      comparison = 1
+    } else if (
+      item2Size === "None" &&
+      (item1Size === "Full" || item1Size === "Half" || item1Size === "Quarter")
+    ) {
+      comparison = -1
+    } else if (
       (item1Size === "Full" && item2Size === "Half") ||
       item2Size === "Quarter"
     ) {
@@ -118,11 +128,12 @@ const ViewSubmissions = () => {
           if (size === "No Thaali") size = "None"
           if (size !== "None") {
             counts[size] = counts[size] + 1
-            menuItemSheet.rows.push({
-              Code: submission.code,
-              Size: size,
-            })
           }
+          menuItemSheet.rows.push({
+            Family: submission.familyDisplayName,
+            Code: submission.code,
+            Size: size,
+          })
         }
         menuItemSheet.rows.sort(sortSelectionsByThaaliSize)
         menuItemSizesToFMBCodes.push(menuItemSheet)
