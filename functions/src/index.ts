@@ -28,7 +28,7 @@ export const newContactFormSubmission = functions.firestore
   .onCreate(async (change, context) => {
     const submission = change.data() || {}
     const jamaat_email = {
-      to: ["umooor-dakheliyah@sandiegojamaat.net", "ibrahim.0814@gmail.com"],
+      to: ["umoor-dakhiliya@sandiegojamaat.net", "ibrahim.0814@gmail.com"],
       from: "webmaster@sandiegojamaat.net",
       templateId: TEMPLATE_ID_CONTACT_US_JAMAAT,
       dynamic_template_data: {
@@ -66,7 +66,7 @@ export const newUserRegistration = functions.firestore
   .onCreate(async (change, context) => {
     const submission = change.data() || {}
     const jamaat_email = {
-      to: ["umooor-dakheliyah@sandiegojamaat.net", "ibrahim.0814@gmail.com"],
+      to: ["umoor-dakhiliya@sandiegojamaat.net", "ibrahim.0814@gmail.com"],
       from: "webmaster@sandiegojamaat.net",
       templateId: TEMPLATE_ID_NEW_USER_REGISTRATION_JAMAAT,
       dynamic_template_data: {
