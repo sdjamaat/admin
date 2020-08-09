@@ -102,3 +102,28 @@ export const deleteAdminAccount = functions.https.onCall(
     }
   }
 )
+
+/*
+Deactivates new accounts by default after registeration
+*/
+
+export const disableNewAccount = functions.auth.user().onCreate(async user => {
+  await admin
+    .auth()
+    .updateUser(user.uid, {
+      // email: 'modifiedUser@example.com',
+      // phoneNumber: '+11234567890',
+      // emailVerified: true,
+      // password: 'newPassword',
+      // displayName: 'Jane Doe',
+      // photoURL: 'http://www.example.com/12345678/photo.png',
+      disabled: true,
+    })
+    .then(function (userRecord) {
+      // See the UserRecord reference doc for the contents of userRecord.
+      console.log("Successfully updated user", userRecord.toJSON())
+    })
+    .catch(function (error) {
+      console.log("Error updating user:", error)
+    })
+})
