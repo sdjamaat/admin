@@ -1,12 +1,12 @@
-import React from "react"
+import React, { useContext } from "react"
 import styled from "styled-components"
 import { Form, Button, Tag, Select } from "antd"
 import { onFinishFailed } from "../../../../functions/forms"
+import { DateContext } from "../../../../provider/date-context"
 import {
   shortMonthToLongMonth,
   shortMonthNames,
 } from "../../../../functions/calendar"
-const momentHijri = require("moment-hijri")
 const { Option } = Select
 
 const layout = {
@@ -16,8 +16,10 @@ const layout = {
 
 const HijriMonthForm = ({ monthsFinished, setStep, values, setValues }) => {
   const [hijriMonthForm] = Form.useForm()
-  const currentHijriMonth = momentHijri().iMonth()
-  const currentHijriYear = momentHijri().iYear()
+
+  const { getHijriDate } = useContext(DateContext)
+  const currentHijriMonth = getHijriDate().month
+  const currentHijriYear = getHijriDate().year
 
   const onFinish = values => {
     if (values.hijrimonth === "moharram") {

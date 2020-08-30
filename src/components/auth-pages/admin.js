@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react"
-import { Menu, Divider, Select, Form } from "antd"
+import { Menu, Divider, Select, Form, DatePicker } from "antd"
 import { Row, Col } from "react-bootstrap"
 import useWindowDimensions from "../../custom-hooks/window-dimentions"
 import styled from "styled-components"
@@ -12,8 +12,8 @@ import ViewSubmissions from "../admin/fmb/view-submissions/view-submissions"
 import ManageEnrollments from "../admin/fmb/manage-enrollments/manage-enrollments"
 import CustomMessage from "../custom-message"
 import { AuthContext } from "../../provider/auth-context"
+import { DateContext } from "../../provider/date-context"
 import firebase from "gatsby-plugin-firebase"
-const momentHijri = require("moment-hijri")
 const { SubMenu } = Menu
 const { Option, OptGroup } = Select
 
@@ -126,6 +126,7 @@ const AdminMenu = ({
 const Admin = () => {
   const [page, setPage] = useState("users-manage-accounts")
   const [menus, setMenus] = useState([])
+  const { getHijriDate } = useContext(DateContext)
 
   const [
     shouldFetchMenusFromFirebase,
@@ -143,12 +144,12 @@ const Admin = () => {
   const getMenus = async () => {
     if (shouldFetchMenusFromFirebase) {
       let updatedMenus = []
-      const currentHijriYear = momentHijri().iYear()
+      const hijriYear = getHijriDate().databaseYear
       try {
         const queryForFmbHijriDoc = firebase
           .firestore()
           .collection("fmb")
-          .doc(currentHijriYear.toString())
+          .doc(hijriYear.toString())
 
         const yearCollection = await queryForFmbHijriDoc.get()
         if (yearCollection.exists) {
@@ -159,13 +160,13 @@ const Admin = () => {
           menusFromFirebase.forEach(doc => {
             let formattedDocData = {
               ...doc.data(),
-              year:
-                doc.id === "moharram" ? currentHijriYear + 1 : currentHijriYear,
+              year: doc.id === "moharram" ? hijriYear + 1 : hijriYear,
               month: doc.id,
             }
             updatedMenus.push(formattedDocData)
           })
         } else {
+          console.log()
           CustomMessage("error", "Could not fetch menus")
         }
       } catch (error) {
