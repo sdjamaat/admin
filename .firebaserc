@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "sdj-website"
+    "default": "sdj-website",
+    "production": "sdj-production"
   }
 }

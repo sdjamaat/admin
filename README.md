@@ -1,4 +1,4 @@
-## SD Jamaat Website
+## SD Jamaat Website Admin Panel
 
 ### Current tooling:
 
@@ -12,8 +12,8 @@
 Step 1: Clone the repository with Git
 
 ```shell
-git clone https://github.com/sdjamaat/website.git sdjwebsite
-cd sdjwebsite
+git clone https://github.com/sdjamaat/admin.git sdjadmin
+cd sdjadmin
 ```
 
 Step 2: Download npm modules ([NodeJS](https://nodejs.org/en/) and [Yarn](https://classic.yarnpkg.com/en/docs/install/)installation required).
@@ -57,6 +57,8 @@ npm install
 ```
 
 #### To deploy new functions:
+
+Helpful link: https://firebase.googleblog.com/2016/07/deploy-to-multiple-environments-with.html
 
 Step 1: You need to first be log into the webmaster@sandiegojamaat.net Google account. You only need to do this once (unless you're switching between other Firebase accounts)
 
