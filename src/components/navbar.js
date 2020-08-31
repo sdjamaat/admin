@@ -28,7 +28,7 @@ const Navigation = ({ logo }) => {
             <Nav.Link
               className="navlink"
               eventKey="1"
-              href="https://sdj.netlify.app"
+              href="https://sandiegojamaat.net"
               target="_blank"
             >
               Main Site

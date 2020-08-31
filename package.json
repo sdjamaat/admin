@@ -12,7 +12,7 @@
     "serve": "gatsby serve",
     "clean": "gatsby clean",
     "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1",
-    "dev": "nodemon --exec 'kill-port --port 8000 && gatsby develop' --watch gatsby-node.js --watch package.json --watch gatsby-config.js"
+    "dev": "nodemon --exec 'kill-port --port 4000 && gatsby develop -p 4000' --watch gatsby-node.js --watch package.json --watch gatsby-config.js"
   },
   "dependencies": {
     "antd": "^4.2.0",
