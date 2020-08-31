@@ -170,27 +170,6 @@ const ViewSubmissions = () => {
       return columnWidths
     }
 
-    // const getMergedRowIndicies = async () => {
-    //   let mergeArr = []
-    //   let currRow = 1
-    //   for (let item of menusWithSubmissions[currSelectedMenuIndex].items) {
-    //     if (!item.nothaali) {
-    //       let rowStart = currRow
-    //       let rowEnd = currRow + submissions.length - 1
-
-    //       // for item name
-    //       mergeArr.push({ s: { r: rowStart, c: 0 }, e: { r: rowEnd, c: 0 } })
-
-    //       // for item date
-    //       mergeArr.push({ s: { r: rowStart, c: 1 }, e: { r: rowEnd, c: 1 } })
-
-    //       currRow = rowEnd + 1
-    //     }
-    //   }
-    //   return mergeArr
-    // }
-
-    //const merged = await getMergedRowIndicies()
     const newWB = xlsx.utils.book_new()
 
     let totalsWorkSheet = xlsx.utils.json_to_sheet(totals)
