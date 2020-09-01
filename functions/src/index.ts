@@ -87,13 +87,11 @@ export const newUserRegistration = functions.firestore
       from: "webmaster@sandiegojamaat.net",
       templateId: TEMPLATE_ID_NEW_USER_REGISTRATION_RECIEPT,
       dynamic_template_data: {
-        dynamic_template_data: {
-          firstname: submission.firstname,
-          lastname: submission.lastname,
-          email: submission.email,
-          phone: submission.phone,
-          familyhead: submission.familyhead ? "Yes" : "No",
-        },
+        firstname: submission.firstname,
+        lastname: submission.lastname,
+        email: submission.email,
+        phone: submission.phone,
+        familyhead: submission.familyhead ? "Yes" : "No",
       },
     }
     return Promise.all([
