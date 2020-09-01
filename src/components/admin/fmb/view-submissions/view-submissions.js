@@ -22,7 +22,7 @@ const ViewSubmissions = () => {
       const menus = await firebase
         .firestore()
         .collection("fmb")
-        .doc(getHijriDate().databaseYear.toString())
+        .doc(getHijriDate().year.toString())
         .collection("menus")
         .get()
 
@@ -55,7 +55,7 @@ const ViewSubmissions = () => {
     const submissions = await firebase
       .firestore()
       .collection("fmb")
-      .doc(getHijriDate().databaseYear.toString())
+      .doc(getHijriDate().year.toString())
       .collection("menus")
       .doc(shortMonthName)
       .collection("submissions")
