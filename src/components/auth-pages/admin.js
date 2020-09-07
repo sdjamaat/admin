@@ -10,6 +10,7 @@ import AddAdminUser from "../admin/users/add-admin-user/add-admin-user"
 import ManageAccounts from "../admin/users/manage-accounts/manage-accounts"
 import ViewSubmissions from "../admin/fmb/view-submissions/view-submissions"
 import ManageEnrollments from "../admin/fmb/manage-enrollments/manage-enrollments"
+import ExportUsers from "../admin/users/export-users/export-users"
 import CustomMessage from "../custom-message"
 import { AuthContext } from "../../provider/auth-context"
 import { DateContext } from "../../provider/date-context"
@@ -46,6 +47,7 @@ const AdminMenu = ({
             {currUser.permissions.manage_admin_accounts && (
               <Menu.Item key="users-add-admin-user">Add Admin User</Menu.Item>
             )}
+            <Menu.Item key="users-export-users">Export Users</Menu.Item>
           </SubMenu>
         )}
 
@@ -88,6 +90,7 @@ const AdminMenu = ({
                           Add Admin User
                         </Option>
                       )}
+                      <Option value="users-export-users">Export Users</Option>
                     </OptGroup>
                   )}
 
@@ -205,6 +208,8 @@ const Admin = () => {
         return <ManageAccounts />
       case "users-add-admin-user":
         return <AddAdminUser setPage={setPage} />
+      case "users-export-users":
+        return <ExportUsers />
 
       default:
         return <div>Welcome to the Admin Panel</div>
