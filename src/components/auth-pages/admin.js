@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react"
-import { Menu, Divider, Select, Form, DatePicker } from "antd"
+import { Menu, Divider, Select, Form, DatePicker, Alert } from "antd"
 import { Row, Col } from "react-bootstrap"
 import useWindowDimensions from "../../custom-hooks/window-dimentions"
 import styled from "styled-components"
@@ -127,7 +127,7 @@ const AdminMenu = ({
 }
 
 const Admin = () => {
-  const [page, setPage] = useState("users-manage-accounts")
+  const [page, setPage] = useState("")
   const [menus, setMenus] = useState([])
   const { getHijriDate } = useContext(DateContext)
 
@@ -212,7 +212,13 @@ const Admin = () => {
         return <ExportUsers />
 
       default:
-        return <div>Welcome to the Admin Panel</div>
+        return (
+          <Alert
+            type="info"
+            message="Welcome to the Admin Panel"
+            style={{ textAlign: "center", fontSize: "1.3rem" }}
+          />
+        )
     }
   }
 
