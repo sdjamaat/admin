@@ -19,10 +19,11 @@ const ViewSubmissions = () => {
   const getMenusWithSubmissions = async () => {
     try {
       let filteredMenus = []
+      const hijriYear = getHijriDate().year
       const menus = await firebase
         .firestore()
         .collection("fmb")
-        .doc(getHijriDate().databaseYear.toString())
+        .doc(hijriYear.toString())
         .collection("menus")
         .get()
 
@@ -36,9 +37,29 @@ const ViewSubmissions = () => {
             shortMonthName: shortMonthName,
             longMonthName: shortMonthToLongMonth(shortMonthName),
             items: data.items,
+            displayYear: data.displayYear,
+            isPrevMoharram: false,
           })
         }
       })
+
+      const moharramPast = await firebase
+        .firestore()
+        .collection("fmb")
+        .doc((hijriYear - 1).toString())
+        .collection("menus")
+        .doc("moharram")
+        .get()
+
+      if (moharramPast.data().submissions.length > 0) {
+        filteredMenus.push({
+          shortMonthName: "moharram",
+          longMonthName: shortMonthToLongMonth("moharram"),
+          items: moharramPast.data().items,
+          displayYear: moharramPast.data().displayYear,
+          isPrevMoharram: true,
+        })
+      }
 
       setMenusWithSubmissions(filteredMenus)
     } catch (err) {
@@ -52,10 +73,12 @@ const ViewSubmissions = () => {
     let submissionsArr = []
 
     const shortMonthName = menusWithSubmissions[index].shortMonthName
+    const isPrevMoharram = menusWithSubmissions[index].isPrevMoharram
+    const hijriYear = getHijriDate().year
     const submissions = await firebase
       .firestore()
       .collection("fmb")
-      .doc(getHijriDate().databaseYear.toString())
+      .doc(isPrevMoharram ? (hijriYear - 1).toString() : hijriYear.toString())
       .collection("menus")
       .doc(shortMonthName)
       .collection("submissions")
@@ -213,7 +236,7 @@ const ViewSubmissions = () => {
               {menusWithSubmissions.map((menu, index) => {
                 return (
                   <Option key={index} value={index}>
-                    {menu.longMonthName}
+                    {menu.longMonthName} {menu.displayYear}
                   </Option>
                 )
               })}

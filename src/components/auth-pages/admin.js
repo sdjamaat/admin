@@ -186,7 +186,7 @@ const Admin = () => {
           })
         } else {
           console.log()
-          CustomMessage("error", "Could not fetch menus")
+          CustomMessage("error", "Having trouble fetching menus")
         }
       } catch (error) {
         console.log("Error getting documents", error)
