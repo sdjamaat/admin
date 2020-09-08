@@ -147,7 +147,7 @@ const Admin = () => {
   const getMenus = async () => {
     if (shouldFetchMenusFromFirebase) {
       let updatedMenus = []
-      const hijriYear = getHijriDate().databaseYear
+      const hijriYear = getHijriDate().year
       try {
         const queryForFmbHijriDoc = firebase
           .firestore()
@@ -155,6 +155,21 @@ const Admin = () => {
           .doc(hijriYear.toString())
 
         const yearCollection = await queryForFmbHijriDoc.get()
+        if (getHijriDate().month === 0) {
+          const moharramPast = await firebase
+            .firestore()
+            .collection("fmb")
+            .doc((hijriYear - 1).toString())
+            .collection("menus")
+            .doc("moharram")
+            .get()
+          updatedMenus.push({
+            ...moharramPast.data(),
+            year: hijriYear,
+            month: "moharram",
+            isPrevMoharram: true,
+          })
+        }
         if (yearCollection.exists) {
           const menusFromFirebase = await queryForFmbHijriDoc
             .collection("menus")
@@ -165,6 +180,7 @@ const Admin = () => {
               ...doc.data(),
               year: doc.id === "moharram" ? hijriYear + 1 : hijriYear,
               month: doc.id,
+              isPrevMoharram: false,
             }
             updatedMenus.push(formattedDocData)
           })

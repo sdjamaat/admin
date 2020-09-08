@@ -123,56 +123,95 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
     return comparison
   }
 
-  const editMenuItemModal = async (menuMonth, itemID, newValues) => {
+  const editMenuItemModal = async (
+    menuMonth,
+    itemID,
+    year,
+    newValues,
+    isPrevMoharram = false,
+    isNewItem = false,
+    isDeleting = false
+  ) => {
     for (let i = 0; i < menusFromAdminComp.length; i++) {
-      if (menuMonth === menusFromAdminComp[i].month) {
+      if (
+        menuMonth === menusFromAdminComp[i].month &&
+        year === menusFromAdminComp[i].year
+      ) {
         let newMenuItemsArr = cloneDeep(menusFromAdminComp[i])
-        for (let item of newMenuItemsArr.items) {
-          if (item.id === itemID) {
-            //check if anything has changed
-            if (
-              item.date !== newValues.date.format("MM-DD-YYYY") ||
-              item.nothaali !== newValues.nothaali ||
-              item.name !== newValues.name ||
-              item.reasonNoThaali !== newValues.reasonNoThaali
-            ) {
-              // set new values
-              item.date = newValues.date.format("MM-DD-YYYY")
-              item.nothaali = newValues.nothaali
-              item.name = newValues.name
-              item.reasonNoThaali = newValues.reasonNoThaali || null
-
-              // sort by date
-              newMenuItemsArr.items.sort(sortMenuItemsByDate)
-
-              // change the menus array which contains menus from multiple months
-              // we're just targeting one month, but must update the entire thing at one time
-              let newAllMenusArr = cloneDeep(menusFromAdminComp)
-              newAllMenusArr[i].items = newMenuItemsArr.items
-
-              // push updates to items array in firebase
-              try {
-                await firebase
-                  .firestore()
-                  .collection("fmb")
-                  .doc(getHijriDate().databaseYear.toString())
-                  .collection("menus")
-                  .doc(menuMonth)
-                  .update({
-                    items: newMenuItemsArr.items,
-                  })
-
-                // set new menus array in our component and it's parent component
-                setMenusFromAdminComp(newAllMenusArr)
-                setMenusInAdminComp(newAllMenusArr)
-                CustomMessage("success", "Successfully updated item")
-              } catch (error) {
-                console.log(error)
-                CustomMessage("error", "Could not update item")
+        let shouldUpdateInFirebase = false
+        if (isNewItem) {
+          shouldUpdateInFirebase = true
+          newMenuItemsArr.items.push({
+            // set new values
+            date: newValues.date.format("MM-DD-YYYY"),
+            nothaali: newValues.nothaali,
+            id: itemID,
+            name: newValues.name,
+            reasonNoThaali: newValues.reasonNoThaali || null,
+          })
+        } else {
+          let index = 0
+          for (let item of newMenuItemsArr.items) {
+            if (item.id === itemID) {
+              if (isDeleting) {
+                newMenuItemsArr.items.splice(index, 1)
+                shouldUpdateInFirebase = true
+              } else {
+                //check if anything has changed
+                if (
+                  item.date !== newValues.date.format("MM-DD-YYYY") ||
+                  item.nothaali !== newValues.nothaali ||
+                  item.name !== newValues.name ||
+                  item.reasonNoThaali !== newValues.reasonNoThaali
+                ) {
+                  shouldUpdateInFirebase = true
+                  // set new values
+                  item.date = newValues.date.format("MM-DD-YYYY")
+                  item.nothaali = newValues.nothaali
+                  item.name = newValues.name
+                  item.reasonNoThaali = newValues.reasonNoThaali || null
+                }
               }
+              continue
             }
-            return
+            index = index + 1
           }
+        }
+
+        // sort by date
+        newMenuItemsArr.items.sort(sortMenuItemsByDate)
+
+        // change the menus array which contains menus from multiple months
+        // we're just targeting one month, but must update the entire thing at one time
+        let newAllMenusArr = cloneDeep(menusFromAdminComp)
+        newAllMenusArr[i].items = newMenuItemsArr.items
+
+        // push updates to items array in firebase
+        try {
+          await firebase
+            .firestore()
+            .collection("fmb")
+            .doc(
+              isPrevMoharram
+                ? getHijriDate().databaseYear.toString()
+                : getHijriDate().year.toString()
+            )
+            .collection("menus")
+            .doc(menuMonth)
+            .update({
+              items: newMenuItemsArr.items,
+            })
+
+          // set new menus array in our component and it's parent component
+          setMenusFromAdminComp(newAllMenusArr)
+          setMenusInAdminComp(newAllMenusArr)
+          CustomMessage(
+            "success",
+            isNewItem ? "Successfully added item" : "Successfully updated menu"
+          )
+        } catch (error) {
+          console.log(error)
+          CustomMessage("error", "Could not update item")
         }
       }
     }
@@ -181,8 +220,10 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
   const showConfirmationModal = (
     text,
     month,
+    year,
     isDeactivating = false,
-    isDeleting = false
+    isDeleting = false,
+    isPrevMoharram = false
   ) => {
     confirm({
       title: `Are you sure you want to ${text} this menu? ${
@@ -219,7 +260,11 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
             await firebase
               .firestore()
               .collection("fmb")
-              .doc(getHijriDate().databaseYear.toString())
+              .doc(
+                isPrevMoharram
+                  ? getHijriDate().databaseYear.toString()
+                  : getHijriDate().year.toString()
+              )
               .collection("menus")
               .doc(month)
               .update({
@@ -229,14 +274,18 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
               await firebase
                 .firestore()
                 .collection("fmb")
-                .doc(getHijriDate().databaseYear.toString())
+                .doc(
+                  isPrevMoharram
+                    ? getHijriDate().databaseYear.toString()
+                    : getHijriDate().year.toString()
+                )
                 .update({
                   activeMenu: isDeactivating ? null : month,
                 })
             }
 
             for (let menu of newMenu) {
-              if (menu.month === month) {
+              if (menu.month === month && menu.year === year) {
                 menu.status = newStatus
               }
             }
@@ -244,7 +293,11 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
             await firebase
               .firestore()
               .collection("fmb")
-              .doc(getHijriDate().databaseYear.toString())
+              .doc(
+                isPrevMoharram
+                  ? getHijriDate().databaseYear.toString()
+                  : getHijriDate().year.toString()
+              )
               .update({
                 finished: firebase.firestore.FieldValue.arrayRemove(month),
               })
@@ -252,12 +305,23 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
             await firebase
               .firestore()
               .collection("fmb")
-              .doc(getHijriDate().databaseYear.toString())
+              .doc(
+                isPrevMoharram
+                  ? getHijriDate().databaseYear.toString()
+                  : getHijriDate().year.toString()
+              )
               .collection("menus")
               .doc(month)
               .delete()
 
-            newMenu = newMenu.filter(x => x.month !== month)
+            let i = 0
+            for (let menu of newMenu) {
+              if (menu.month === month && menu.year === year) {
+                console.log(newMenu.splice(i, 1))
+                continue
+              }
+              i = i + 1
+            }
           }
 
           // set updated state in admin component
@@ -290,7 +354,10 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
       return <div>Loading...</div>
     } else if (menus.length === 0) {
       return (
-        <Alert message="No menus to display for current year" type="warning" />
+        <Alert
+          message="No menus to display for current hijri year"
+          type="warning"
+        />
       )
     } else {
       return (

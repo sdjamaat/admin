@@ -87,7 +87,7 @@ const CreateMenu = ({ setPage, refetchMenus }) => {
       const queryForFmbHijriDoc = firebase
         .firestore()
         .collection("fmb")
-        .doc(getHijriDate().databaseYear.toString())
+        .doc(getHijriDate().year.toString())
 
       await queryForFmbHijriDoc.update({
         finished: firebase.firestore.FieldValue.arrayUnion(

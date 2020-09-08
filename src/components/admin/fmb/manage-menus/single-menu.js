@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import {
   Card,
   Collapse,
@@ -29,13 +29,19 @@ const SingleMenu = ({
   editMenuItemModal,
 }) => {
   const [editMenuItemForm] = Form.useForm()
+
   const [showEditMenuItemModal, setShowEditMenuItemModal] = useState(false)
+  const [showDeleteMenuItemModal, setShowDeleteMenuItemModal] = useState(false)
   const [
     currentlyEditingMenuItemDetails,
     setCurrentlyEditingMenuItemDetails,
   ] = useState({
     monthName: null,
     itemID: null,
+    year: null,
+    isPrevMoharram: null,
+    isNewItem: null,
+    isDeleting: null,
   })
   const [nameFieldDisabled, setNameFieldDisabled] = useState(false)
   const [isUpdatingItem, setIsUpdatingItem] = useState(false)
@@ -49,7 +55,14 @@ const SingleMenu = ({
             <Button
               variant="outline-danger"
               onClick={() =>
-                showConfirmationModal("deactivate", menu.month, true)
+                showConfirmationModal(
+                  "deactivate",
+                  menu.month,
+                  menu.year,
+                  true,
+                  false,
+                  menu.isPrevMoharram
+                )
               }
             >
               Close Submissions & Archive
@@ -63,7 +76,16 @@ const SingleMenu = ({
           <Col xs={6}>
             <Button
               variant="outline-secondary"
-              onClick={() => showConfirmationModal("archive", menu.month)}
+              onClick={() =>
+                showConfirmationModal(
+                  "archive",
+                  menu.month,
+                  menu.year,
+                  false,
+                  false,
+                  menu.isPrevMoharram
+                )
+              }
             >
               Archive
             </Button>
@@ -71,7 +93,16 @@ const SingleMenu = ({
           <Col xs={6}>
             <Button
               variant="outline-success"
-              onClick={() => showConfirmationModal("activate", menu.month)}
+              onClick={() =>
+                showConfirmationModal(
+                  "activate",
+                  menu.month,
+                  menu.year,
+                  false,
+                  false,
+                  menu.isPrevMoharram
+                )
+              }
             >
               Activate
             </Button>
@@ -85,7 +116,14 @@ const SingleMenu = ({
             <Button
               variant="outline-danger"
               onClick={() =>
-                showConfirmationModal("delete", menu.month, false, true)
+                showConfirmationModal(
+                  "delete",
+                  menu.month,
+                  menu.year,
+                  false,
+                  true,
+                  menu.isPrevMoharram
+                )
               }
             >
               Delete
@@ -94,7 +132,16 @@ const SingleMenu = ({
           <Col xs={6}>
             <Button
               variant="outline-warning"
-              onClick={() => showConfirmationModal("queue", menu.month)}
+              onClick={() =>
+                showConfirmationModal(
+                  "queue",
+                  menu.month,
+                  menu.year,
+                  false,
+                  false,
+                  menu.isPrevMoharram
+                )
+              }
             >
               Queue
             </Button>
@@ -104,6 +151,7 @@ const SingleMenu = ({
     }
     return buttons
   }
+
   return (
     <SingleMenuWrapper>
       <Card bodyStyle={{ padding: "1rem" }}>
@@ -159,26 +207,60 @@ const SingleMenu = ({
                             margin: "-.2rem .3rem 0rem .3rem",
                           }}
                         >
-                          <Button
-                            className="align-middle"
-                            variant="outline-warning"
-                            onClick={() => {
-                              setNameFieldDisabled(item.nothaali)
-                              editMenuItemForm.setFieldsValue({
-                                name: item.name,
-                                date: moment(item.date, "MM-DD-YYYY"),
-                                nothaali: item.nothaali,
-                                reasonNoThaali: item.reasonNoThaali,
-                              })
-                              setCurrentlyEditingMenuItemDetails({
-                                monthName: menu.month,
-                                itemID: item.id,
-                              })
-                              setShowEditMenuItemModal(true)
-                            }}
-                          >
-                            Edit
-                          </Button>
+                          <Row>
+                            <Col>
+                              <Button
+                                className="align-middle"
+                                variant="outline-warning"
+                                onClick={() => {
+                                  setNameFieldDisabled(item.nothaali)
+                                  editMenuItemForm.setFieldsValue({
+                                    name: item.name,
+                                    date: moment(item.date, "MM-DD-YYYY"),
+                                    nothaali: item.nothaali,
+                                    reasonNoThaali: item.reasonNoThaali,
+                                  })
+                                  setCurrentlyEditingMenuItemDetails({
+                                    monthName: menu.month,
+                                    itemID: item.id,
+                                    year: menu.year,
+                                    isPrevMoharram: menu.isPrevMoharram,
+                                    isNewItem: false,
+                                  })
+                                  setShowEditMenuItemModal(true)
+                                }}
+                              >
+                                Edit
+                              </Button>
+                            </Col>
+
+                            <Col>
+                              <Button
+                                className="align-middle"
+                                variant="outline-danger"
+                                onClick={() => {
+                                  setNameFieldDisabled(item.nothaali)
+                                  editMenuItemForm.setFieldsValue({
+                                    name: item.name,
+                                    date: moment(item.date, "MM-DD-YYYY"),
+                                    nothaali: item.nothaali,
+                                    reasonNoThaali: item.reasonNoThaali,
+                                  })
+                                  setCurrentlyEditingMenuItemDetails({
+                                    monthName: menu.month,
+                                    itemID: item.id,
+                                    year: menu.year,
+                                    isPrevMoharram: menu.isPrevMoharram,
+                                    isNewItem: false,
+                                    isDeleting: true,
+                                  })
+                                  setShowDeleteMenuItemModal(true)
+                                }}
+                              >
+                                Delete
+                              </Button>
+                            </Col>
+                          </Row>
                         </div>
                       </Col>
                     )}
@@ -186,6 +268,35 @@ const SingleMenu = ({
                 </div>
               )
             })}
+
+            {tagName !== "Active" && (
+              <Button
+                onClick={() => {
+                  setNameFieldDisabled(false)
+                  editMenuItemForm.setFieldsValue({
+                    name: null,
+                    date: null,
+                    nothaali: null,
+                    reasonNoThaali: null,
+                  })
+                  setCurrentlyEditingMenuItemDetails({
+                    monthName: menu.month,
+                    itemID: Array(15)
+                      .fill(0)
+                      .map(x => Math.random().toString(36).charAt(2))
+                      .join(""),
+                    year: menu.year,
+                    isPrevMoharram: menu.isPrevMoharram,
+                    isNewItem: true,
+                    isDeleting: false,
+                  })
+                  setShowEditMenuItemModal(true)
+                }}
+                variant="outline-secondary"
+              >
+                Add New Item
+              </Button>
+            )}
           </Panel>
         </Collapse>
         <Row style={{ marginTop: "1rem" }}>{getActionButtons(tagName)}</Row>
@@ -193,7 +304,9 @@ const SingleMenu = ({
       <Modal
         title="Edit Item"
         visible={showEditMenuItemModal}
-        okText="Update"
+        okText={
+          currentlyEditingMenuItemDetails.isNewItem ? "Add Item" : "Update Item"
+        }
         confirmLoading={isUpdatingItem}
         onOk={async () => {
           setIsUpdatingItem(true)
@@ -202,7 +315,11 @@ const SingleMenu = ({
             await editMenuItemModal(
               currentlyEditingMenuItemDetails.monthName,
               currentlyEditingMenuItemDetails.itemID,
-              editMenuItemForm.getFieldsValue()
+              currentlyEditingMenuItemDetails.year,
+              editMenuItemForm.getFieldsValue(),
+              currentlyEditingMenuItemDetails.isPrevMoharram,
+              currentlyEditingMenuItemDetails.isNewItem,
+              currentlyEditingMenuItemDetails.isDeleting
             )
             setIsUpdatingItem(false)
             setShowEditMenuItemModal(false)
@@ -280,6 +397,58 @@ const SingleMenu = ({
             </Checkbox>
           </Form.Item>
         </Form>
+      </Modal>
+      <Modal
+        title="Are you sure you want to delete this item?"
+        visible={showDeleteMenuItemModal}
+        okText="Delete Item"
+        confirmLoading={isUpdatingItem}
+        okType="danger"
+        onOk={async () => {
+          setIsUpdatingItem(true)
+          try {
+            await editMenuItemModal(
+              currentlyEditingMenuItemDetails.monthName,
+              currentlyEditingMenuItemDetails.itemID,
+              currentlyEditingMenuItemDetails.year,
+              editMenuItemForm.getFieldsValue(),
+              currentlyEditingMenuItemDetails.isPrevMoharram,
+              currentlyEditingMenuItemDetails.isNewItem,
+              currentlyEditingMenuItemDetails.isDeleting
+            )
+            setIsUpdatingItem(false)
+            setShowDeleteMenuItemModal(false)
+          } catch (err) {
+            setIsUpdatingItem(false)
+            console.log(err)
+          }
+        }}
+        onCancel={() => setShowDeleteMenuItemModal(false)}
+      >
+        {showDeleteMenuItemModal && (
+          <div>
+            <ul>
+              {editMenuItemForm.getFieldValue("nothaali") ? (
+                <li>No Thaali</li>
+              ) : (
+                <li>Name: {editMenuItemForm.getFieldValue("name")}</li>
+              )}
+
+              {editMenuItemForm.getFieldValue("nothaali") && (
+                <li>
+                  Reason:{" "}
+                  {editMenuItemForm.getFieldValue("reasonNoThaali") ||
+                    "None provided"}
+                </li>
+              )}
+
+              <li>
+                Date:{" "}
+                {editMenuItemForm.getFieldValue("date").format("MM-DD-YYYY")}
+              </li>
+            </ul>
+          </div>
+        )}
       </Modal>
     </SingleMenuWrapper>
   )
