@@ -154,15 +154,15 @@ const Admin = () => {
           .collection("fmb")
           .doc(hijriYear.toString())
 
-        const yearCollection = await queryForFmbHijriDoc.get()
-        if (getHijriDate().month === 0) {
-          const moharramPast = await firebase
-            .firestore()
-            .collection("fmb")
-            .doc((hijriYear - 1).toString())
-            .collection("menus")
-            .doc("moharram")
-            .get()
+        const moharramPast = await firebase
+          .firestore()
+          .collection("fmb")
+          .doc((hijriYear - 1).toString())
+          .collection("menus")
+          .doc("moharram")
+          .get()
+
+        if (moharramPast.exists) {
           updatedMenus.push({
             ...moharramPast.data(),
             year: hijriYear,
@@ -170,6 +170,9 @@ const Admin = () => {
             isPrevMoharram: true,
           })
         }
+
+        const yearCollection = await queryForFmbHijriDoc.get()
+
         if (yearCollection.exists) {
           const menusFromFirebase = await queryForFmbHijriDoc
             .collection("menus")
