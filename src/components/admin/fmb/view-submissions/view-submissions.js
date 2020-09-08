@@ -147,7 +147,6 @@ const ViewSubmissions = () => {
         }
         for (let submission of submissions) {
           let size = submission.selections[menuItem.id]
-          if (size === "Barakati") size = "Quarter"
           if (size === "No Thaali") size = "None"
           if (size !== "None") {
             counts[size] = counts[size] + 1

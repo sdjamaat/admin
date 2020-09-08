@@ -236,7 +236,7 @@ const ManageEnrollments = () => {
             >
               <Select.Option value="Full">Full</Select.Option>
               <Select.Option value="Half">Half</Select.Option>
-              <Select.Option value="Barakati">Barakati</Select.Option>
+              <Select.Option value="Quarter">Quarter</Select.Option>
             </Select>
           </Form.Item>
           <Form.Item
