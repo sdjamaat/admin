@@ -302,7 +302,11 @@ const SingleMenu = ({
         <Row style={{ marginTop: "1rem" }}>{getActionButtons(tagName)}</Row>
       </Card>
       <Modal
-        title="Edit Item"
+        title={
+          currentlyEditingMenuItemDetails.isNewItem
+            ? "Add New Item"
+            : "Edit Item"
+        }
         visible={showEditMenuItemModal}
         okText={
           currentlyEditingMenuItemDetails.isNewItem ? "Add Item" : "Update Item"
