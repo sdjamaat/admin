@@ -134,7 +134,7 @@ const ViewSubmissions = () => {
       let menuItemSheet = {
         item: menuItem.name,
         date: menuItem.date,
-        name: `${menuItem.name} (${menuItem.date})`,
+        name: `(${menuItem.date})`,
         rows: [],
       }
       if (!menuItem.nothaali) {
