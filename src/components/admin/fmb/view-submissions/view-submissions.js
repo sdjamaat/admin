@@ -152,6 +152,8 @@ const ViewSubmissions = () => {
             counts[size] = counts[size] + 1
           }
           menuItemSheet.rows.push({
+            Item: menuItem.name,
+            Date: menuItem.date,
             Family: submission.familyDisplayName,
             Code: submission.code,
             Size: size,
@@ -198,6 +200,13 @@ const ViewSubmissions = () => {
     totalsWorkSheet["!cols"] = fitToColumn(totals)
     xlsx.utils.book_append_sheet(newWB, totalsWorkSheet, "Totals")
 
+    let flatMenuItemSheets = []
+    for (let menuItemSheet of menuItemSheets){
+      flatMenuItemSheets.push(menuItemSheet)
+    }
+    let MenuItemFamSize = xlsx.utils.json_to_sheets(flatMenuItemSheets)
+    xlsx.utils.book_append_sheet(newWB, MenuItemFamSize, "Menu-Item-Fam-Size")
+    
     for (let menuItemSheet of menuItemSheets) {
       const firstRow = menuItemSheet.rows[0]
       menuItemSheet.rows[0] = {
