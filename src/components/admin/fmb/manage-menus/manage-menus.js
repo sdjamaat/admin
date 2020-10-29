@@ -193,7 +193,7 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
             .collection("fmb")
             .doc(
               isPrevMoharram
-                ? getHijriDate().databaseYear.toString()
+                ? (getHijriDate().year - 1).toString()
                 : getHijriDate().year.toString()
             )
             .collection("menus")
@@ -262,7 +262,7 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
               .collection("fmb")
               .doc(
                 isPrevMoharram
-                  ? getHijriDate().databaseYear.toString()
+                  ? (getHijriDate().year - 1).toString()
                   : getHijriDate().year.toString()
               )
               .collection("menus")
@@ -276,7 +276,7 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
                 .collection("fmb")
                 .doc(
                   isPrevMoharram
-                    ? getHijriDate().databaseYear.toString()
+                    ? (getHijriDate().year - 1).toString()
                     : getHijriDate().year.toString()
                 )
                 .update({
@@ -295,7 +295,7 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
               .collection("fmb")
               .doc(
                 isPrevMoharram
-                  ? getHijriDate().databaseYear.toString()
+                  ? (getHijriDate().year - 1).toString()
                   : getHijriDate().year.toString()
               )
               .update({
@@ -307,7 +307,7 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
               .collection("fmb")
               .doc(
                 isPrevMoharram
-                  ? getHijriDate().databaseYear.toString()
+                  ? (getHijriDate().year - 1).toString()
                   : getHijriDate().year.toString()
               )
               .collection("menus")

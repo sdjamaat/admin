@@ -28,7 +28,7 @@ Step 3: Run locally on live server
 
 ```shell
 npm run dev
-# then navigate to localhost:8000
+# then navigate to localhost:4000
 ```
 
 #### Install new npm modules

@@ -151,10 +151,12 @@ const ViewSubmissions = () => {
           if (size !== "None") {
             counts[size] = counts[size] + 1
           }
+
           menuItemSheet.rows.push({
             Family: submission.familyDisplayName,
             Code: submission.code,
             Size: size,
+            Mohalla: submission.code.split("-")[0],
           })
         }
         menuItemSheet.rows.sort(sortSelectionsByThaaliSize)
@@ -197,6 +199,22 @@ const ViewSubmissions = () => {
     let totalsWorkSheet = xlsx.utils.json_to_sheet(totals)
     totalsWorkSheet["!cols"] = fitToColumn(totals)
     xlsx.utils.book_append_sheet(newWB, totalsWorkSheet, "Totals")
+
+    // append sheet with all items in aggregate
+    let flatSheetRows = []
+    for (let menuItemSheet of menuItemSheets) {
+      for (let row of menuItemSheet.rows) {
+        row = {
+          Date: menuItemSheet.date,
+          Item: menuItemSheet.item,
+          ...row,
+        }
+        flatSheetRows.push(row)
+      }
+    }
+    let flatSheet = xlsx.utils.json_to_sheet(flatSheetRows)
+    flatSheet["!cols"] = fitToColumn(flatSheetRows)
+    xlsx.utils.book_append_sheet(newWB, flatSheet, "All Items")
 
     for (let menuItemSheet of menuItemSheets) {
       const firstRow = menuItemSheet.rows[0]
