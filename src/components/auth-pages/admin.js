@@ -11,6 +11,7 @@ import ManageAccounts from "../admin/users/manage-accounts/manage-accounts"
 import ViewSubmissions from "../admin/fmb/view-submissions/view-submissions"
 import ManageEnrollments from "../admin/fmb/manage-enrollments/manage-enrollments"
 import ExportUsers from "../admin/users/export-users/export-users"
+import ExportFamilies from "../admin/users/export-families/export-families"
 import CustomMessage from "../custom-message"
 import { AuthContext } from "../../provider/auth-context"
 import { DateContext } from "../../provider/date-context"
@@ -48,6 +49,7 @@ const AdminMenu = ({
               <Menu.Item key="users-add-admin-user">Add Admin User</Menu.Item>
             )}
             <Menu.Item key="users-export-users">Export Users</Menu.Item>
+            <Menu.Item key="users-export-families">Export Families</Menu.Item>
           </SubMenu>
         )}
 
@@ -91,6 +93,9 @@ const AdminMenu = ({
                         </Option>
                       )}
                       <Option value="users-export-users">Export Users</Option>
+                      <Option value="users-export-families">
+                        Export Users
+                      </Option>
                     </OptGroup>
                   )}
 
@@ -229,6 +234,8 @@ const Admin = () => {
         return <AddAdminUser setPage={setPage} />
       case "users-export-users":
         return <ExportUsers />
+      case "users-export-families":
+        return <ExportFamilies />
 
       default:
         return (
