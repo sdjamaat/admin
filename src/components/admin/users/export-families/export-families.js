@@ -1,22 +1,10 @@
-import React, { useState, useEffect, useContext } from "react"
-import {
-  Tabs,
-  Card,
-  Table,
-  Modal,
-  Form,
-  Input,
-  InputNumber,
-  Checkbox,
-  Button,
-} from "antd"
+import React, { useState } from "react"
+import { Card, Checkbox, Button } from "antd"
 import firebase from "gatsby-plugin-firebase"
 import styled from "styled-components"
-import { useStaticQuery } from "gatsby"
 import CustomMessage from "../../../../components/custom-message"
 import moment from "moment"
 const xlsx = require("xlsx")
-const { TabPane } = Tabs
 
 const ExportFamilies = () => {
   const [columns, setColumns] = useState([])
@@ -35,9 +23,9 @@ const ExportFamilies = () => {
     { label: "Family Head", value: "head" },
   ]
 
-  const generateSheetRows = async () => {
+  const generateSheetRows = data => {
     const allData = []
-    for (let family of families) {
+    for (let family of data) {
       let familyData = {}
       for (let column of columns) {
         if (["address", "head", "fmb", "members"].includes(column)) {
@@ -66,18 +54,18 @@ const ExportFamilies = () => {
   }
 
   const getFamilies = async () => {
+    let tempFamilies = []
     if (columns.length === 0) {
       CustomMessage("error", "No columns selected")
     } else if (families.length === 0) {
-      let tempFamilies = []
       const data = await firebase.firestore().collection("families").get()
 
       data.forEach(families => {
-        //console.log(families.data())
         tempFamilies.push(families.data())
       })
-      setFamilies(tempFamilies)
     }
+    setFamilies(tempFamilies)
+    return tempFamilies
   }
 
   const fitToColumn = data => {
@@ -96,8 +84,13 @@ const ExportFamilies = () => {
   }
 
   const exportData = async () => {
-    await getFamilies()
-    const jsonValues = await generateSheetRows()
+    const familyData = await getFamilies()
+
+    const jsonValues = generateSheetRows(familyData)
+
+    if (jsonValues === []) {
+      exportData()
+    }
 
     const newWB = xlsx.utils.book_new()
 
