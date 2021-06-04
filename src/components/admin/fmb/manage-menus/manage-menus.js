@@ -281,6 +281,7 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }) => {
                 )
                 .update({
                   activeMenu: isDeactivating ? null : month,
+                  lastActiveMenu: month,
                 })
             }
 
