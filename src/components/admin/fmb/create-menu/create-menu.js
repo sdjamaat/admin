@@ -35,6 +35,7 @@ const CreateMenu = ({ setPage, refetchMenus }) => {
         await queryForFmbHijriDoc.set({
           finished: [],
           activeMenu: null,
+          lastActiveMenu: null,
         })
         await queryForFmbHijriDoc.collection("menus")
       }
