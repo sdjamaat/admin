@@ -188,10 +188,7 @@ const MenuItemsForm = ({
       >
         <Form.Item>
           <Upload name="Excel Menu" action={onImportExcel} accept=".xlsx, .xls">
-            <Button>
-              <UploadOutlined />
-              Click to Upload Excel Menu
-            </Button>
+            <Button>Click to Upload Excel Menu</Button>
           </Upload>
         </Form.Item>
         <Divider style={{ marginBottom: "1rem" }} />
