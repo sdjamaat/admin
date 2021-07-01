@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react"
 import { DateContext } from "../../../../provider/date-context"
 import styled from "styled-components"
-import { Card, Spin, message } from "antd"
+import { Card, Spin } from "antd"
 import firebase from "gatsby-plugin-firebase"
 import HijriMonthForm from "./hijri-month-form"
 import MenuItemsForm from "./menu-items-form"
@@ -9,7 +9,6 @@ import ReviewMenu from "./review-menu"
 import CustomMessage from "../../../custom-message"
 import { shortMonthToLongMonth } from "../../../../functions/calendar"
 import { cloneDeep } from "lodash"
-const momentHijri = require("moment-hijri")
 
 const CreateMenu = ({ setPage, refetchMenus }) => {
   const { getHijriDate } = useContext(DateContext)

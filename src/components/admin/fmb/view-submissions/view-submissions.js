@@ -174,7 +174,7 @@ const ViewSubmissions = () => {
   const exportDataToExcel = async () => {
     const displayMonthName =
       menusWithSubmissions[currSelectedMenuIndex].longMonthName
-    const currentTime = moment().format("dddd, MMMM Do YYYY, h:mm:ss a")
+    const currentTime = moment().format("dddd, MMM Do YYYY, h:mm:ss a")
 
     const { menuItemSheets, totals } = getJSONSheetValues()
     totals[0]["Export Timestamp"] = currentTime
@@ -306,7 +306,7 @@ const ViewSubmissions = () => {
                                       }}
                                     >
                                       {moment(item.date, "MM-DD-YYYY").format(
-                                        "dddd, MMMM Do YYYY"
+                                        "dddd, MMM Do YYYY"
                                       )}
                                     </p>
                                     <p

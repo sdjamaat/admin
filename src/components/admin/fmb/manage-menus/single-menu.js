@@ -196,7 +196,9 @@ const SingleMenu = ({
                               : "None provided"}
                           </li>
                         )}
-                        <li>Date: {item.date}</li>
+                        <li>
+                          Date: {moment(item.date).format("dddd, MMM Do YYYY")}
+                        </li>
                       </ul>
                     </Col>
 
@@ -365,7 +367,7 @@ const SingleMenu = ({
             style={{ marginBottom: ".5rem" }}
           >
             <DatePicker
-              format="MM-DD-YYYY"
+              format="dddd, MMM Do YYYY"
               style={{ width: "100%", paddingBottom: ".4rem" }}
             />
           </Form.Item>
@@ -448,7 +450,9 @@ const SingleMenu = ({
 
               <li>
                 Date:{" "}
-                {editMenuItemForm.getFieldValue("date").format("MM-DD-YYYY")}
+                {editMenuItemForm
+                  .getFieldValue("date")
+                  .format("dddd, MMM Do YYYY")}
               </li>
             </ul>
           </div>

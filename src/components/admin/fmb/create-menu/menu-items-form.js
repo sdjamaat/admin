@@ -11,13 +11,66 @@ import {
   Space,
   Divider,
   Checkbox,
+  Upload,
 } from "antd"
 import CustomMessage from "../../../custom-message"
 import { Row, Col } from "react-bootstrap"
+import { UploadOutlined } from "@ant-design/icons"
+import * as XLSX from "xlsx"
+import moment from "moment"
 
 const layout = {
   labelCol: { span: 24 },
   wrapperCol: { span: 24 },
+}
+
+const importExcel = (file, menuItemForm) => {
+  const fileReader = new FileReader()
+  fileReader.onload = event => {
+    try {
+      const { result } = event.target
+      const workbook = XLSX.read(result, { type: "binary", cellDates: true })
+      for (const Sheet in workbook.Sheets) {
+        XLSX.utils.sheet_to_row_object_array(workbook.Sheets["chicken"])
+        if (workbook.Sheets.hasOwnProperty(Sheet)) {
+          let data = XLSX.utils.sheet_to_row_object_array(
+            workbook.Sheets[Sheet]
+          )
+          let allMenuItems = []
+          let isProperlyParsed = true
+          data.forEach(x => {
+            // first make array of items
+            allMenuItems.push({
+              name: x.Item ? x.Item : null,
+              date: x.Date ? moment(x.Date) : null,
+              nothaali: undefined,
+            })
+          })
+
+          // validate
+          allMenuItems.forEach(x => {
+            if (x.name === null || x.date === null) {
+              isProperlyParsed = false
+              return
+            }
+          })
+
+          if (isProperlyParsed) {
+            // push excel sheet parsed items into the menu item form
+            let currItems = menuItemForm.getFieldsValue()
+            currItems.items = allMenuItems
+            menuItemForm.setFieldsValue(currItems)
+            CustomMessage("success", "Sucessfully parsed menu")
+          } else {
+            CustomMessage("error", "Error: Could not parse menu")
+          }
+        }
+      }
+    } catch (e) {
+      CustomMessage("error", "Error: Could not parse menu")
+    }
+  }
+  fileReader.readAsBinaryString(file)
 }
 
 const MenuItemsForm = ({
@@ -38,6 +91,7 @@ const MenuItemsForm = ({
   */
   const onFinish = values => {
     if (values.items.length > 0) {
+      console.log(values)
       setValues(values)
       setDisabledValues(disabledItems)
       setStep("reviewmenu")
@@ -105,6 +159,10 @@ const MenuItemsForm = ({
     setDisabledItems(newDisabledItemsArr)
   }
 
+  const onImportExcel = file => {
+    importExcel(file, menuItemsForm)
+  }
+
   return (
     <MenuItemsWrapper>
       <div style={{ textAlign: "center" }}>
@@ -128,6 +186,15 @@ const MenuItemsForm = ({
         onFinishFailed={() => onFinishFailed(menuItemsForm)}
         onFinish={onFinish}
       >
+        <Form.Item>
+          <Upload name="Excel Menu" action={onImportExcel} accept=".xlsx, .xls">
+            <Button>
+              <UploadOutlined />
+              Click to Upload Excel Menu
+            </Button>
+          </Upload>
+        </Form.Item>
+        <Divider style={{ marginBottom: "1rem" }} />
         <Form.List name="items">
           {(fields, { add, remove }) => {
             return (
@@ -169,7 +236,7 @@ const MenuItemsForm = ({
                       style={{ marginBottom: ".5rem" }}
                     >
                       <DatePicker
-                        format="MM-DD-YYYY"
+                        format="dddd, MMM Do YYYY"
                         style={{ width: "100%", paddingBottom: ".4rem" }}
                       />
                     </Form.Item>
@@ -231,6 +298,7 @@ const MenuItemsForm = ({
                     />
                   </Space>
                 ))}
+
                 <Form.Item>
                   <Button
                     type="dashed"

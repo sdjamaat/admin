@@ -41,7 +41,7 @@ const ReviewMenu = ({ setStep, hijrimonthForm, menuitemsForm, submitMenu }) => {
                       : "None provided"}
                   </li>
                 )}
-                <li>Date: {item.date.format("MM-DD-YYYY")}</li>
+                <li>Date: {item.date.format("dddd, MMM Do YYYY")}</li>
               </ul>
             </div>
           )
