@@ -12,6 +12,8 @@ import {
   Divider,
   Checkbox,
   Upload,
+  Alert,
+  Popover,
 } from "antd"
 import CustomMessage from "../../../custom-message"
 import { Row, Col } from "react-bootstrap"
@@ -196,7 +198,15 @@ const MenuItemsForm = ({
             accept=".xlsx, .xls"
             showUploadList={false}
           >
-            <Button>Click to Upload Excel Menu</Button>
+            <Popover
+              placement="topRight"
+              content={
+                'Make sure to include columns with the headers: "Item" and "Date" (case-sensitive)'
+              }
+            >
+              <Button>Click to Upload Excel Menu</Button>
+            </Popover>
+            ,
           </Upload>
         </Form.Item>
         <Divider style={{ marginBottom: "1rem" }} />
