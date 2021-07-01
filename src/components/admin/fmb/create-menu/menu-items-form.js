@@ -204,9 +204,8 @@ const MenuItemsForm = ({
                 'Make sure to include columns with the headers: "Item" and "Date" (case-sensitive)'
               }
             >
-              <Button>Click to Upload Excel Menu</Button>
+              <Button>Import Data from Excel Sheet</Button>
             </Popover>
-            ,
           </Upload>
         </Form.Item>
         <Divider style={{ marginBottom: "1rem" }} />
