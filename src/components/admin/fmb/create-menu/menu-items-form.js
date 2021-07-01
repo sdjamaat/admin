@@ -60,13 +60,16 @@ const importExcel = (file, menuItemForm) => {
             let currItems = menuItemForm.getFieldsValue()
             currItems.items = allMenuItems
             menuItemForm.setFieldsValue(currItems)
+            file.status = "success"
             CustomMessage("success", "Sucessfully parsed menu")
           } else {
+            file.status = "error"
             CustomMessage("error", "Error: Could not parse menu")
           }
         }
       }
     } catch (e) {
+      file.status = "error"
       CustomMessage("error", "Error: Could not parse menu")
     }
   }
@@ -187,7 +190,12 @@ const MenuItemsForm = ({
         onFinish={onFinish}
       >
         <Form.Item>
-          <Upload name="Excel Menu" action={onImportExcel} accept=".xlsx, .xls">
+          <Upload
+            name="Excel Menu"
+            action={onImportExcel}
+            accept=".xlsx, .xls"
+            showUploadList={false}
+          >
             <Button>Click to Upload Excel Menu</Button>
           </Upload>
         </Form.Item>
