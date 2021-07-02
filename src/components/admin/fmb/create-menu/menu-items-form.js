@@ -33,7 +33,7 @@ const importExcel = (file, menuItemForm) => {
       const { result } = event.target
       const workbook = XLSX.read(result, { type: "binary", cellDates: true })
       for (const Sheet in workbook.Sheets) {
-        XLSX.utils.sheet_to_row_object_array(workbook.Sheets["chicken"])
+        //XLSX.utils.sheet_to_row_object_array(workbook.Sheets["chicken"])
         if (workbook.Sheets.hasOwnProperty(Sheet)) {
           let data = XLSX.utils.sheet_to_row_object_array(
             workbook.Sheets[Sheet]
@@ -69,6 +69,9 @@ const importExcel = (file, menuItemForm) => {
             CustomMessage("error", "Error: Could not parse menu")
           }
         }
+
+        // just go through the first sheet, maybe change behavior later if sheet name is specified
+        break
       }
     } catch (e) {
       file.status = "error"
