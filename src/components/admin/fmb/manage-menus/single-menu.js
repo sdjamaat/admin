@@ -13,7 +13,7 @@ import { Row, Col, Button } from "react-bootstrap"
 import styled from "styled-components"
 import { shortMonthToLongMonth } from "../../../../functions/calendar"
 import { onFinishFailed } from "../../../../functions/forms"
-const moment = require("moment")
+import moment from "moment"
 const { Panel } = Collapse
 
 const layout = {
@@ -177,6 +177,7 @@ const SingleMenu = ({
         <Collapse style={{ padding: "-10px" }}>
           <Panel header="Items" key="1">
             {menu.items.map((item, index) => {
+              console.log(item)
               return (
                 <div key={index}>
                   <Row style={{ marginBottom: "1.2rem" }}>
@@ -197,7 +198,10 @@ const SingleMenu = ({
                           </li>
                         )}
                         <li>
-                          Date: {moment(item.date).format("dddd, MMM Do YYYY")}
+                          Date:{" "}
+                          {moment(item.date, "MM-DD-YYYY").format(
+                            "dddd, MMM Do YYYY"
+                          )}
                         </li>
                       </ul>
                     </Col>
@@ -450,9 +454,9 @@ const SingleMenu = ({
 
               <li>
                 Date:{" "}
-                {editMenuItemForm
-                  .getFieldValue("date")
-                  .format("dddd, MMM Do YYYY")}
+                {moment(editMenuItemForm.getFieldValue("date")).format(
+                  "dddd, MMM Do YYYY"
+                )}
               </li>
             </ul>
           </div>
