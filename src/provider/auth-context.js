@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from "react"
 import firebase from "gatsby-plugin-firebase"
 import { navigate } from "gatsby"
+import Cohere from "cohere-js"
 const hasWindow = typeof window !== "undefined"
 const SecureLS = hasWindow ? require("secure-ls") : null
 const localEncryptedStore = hasWindow
@@ -9,6 +10,9 @@ const localEncryptedStore = hasWindow
       encryptionSecret: process.env.GATSBY_ENCRYPTION_SECRET,
     })
   : null
+
+// initialize coehre
+Cohere.init("WbbFbPynF079XB4yQZMUOSVK")
 
 const defaultState = {
   isLoggedIn: false,
