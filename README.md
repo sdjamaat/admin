@@ -72,3 +72,11 @@ Step 2: Use this shell command to deploy the functions:
 ```shell
 firebase deploy --only functions
 ```
+
+### Cohere Monitoring
+
+[Cohere](https://cohere.so/) is a monitoring platform that allows us to see in real-time how people are using the jamaat website and also allows us to control their screen if we need to. It is especially useful for helping out folks out who need assistance in navigating the jamaat website.
+
+Cohere Dashboard: https://app.cohere.so/dashboard
+
+> In order to access the dashboard you must login with the webmaster@sandiegojamaat.net Google account. If you need access to this account, ask Ibrahim.
