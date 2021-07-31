@@ -4950,6 +4950,11 @@ codepage@~1.14.0:
     commander "~2.14.1"
     exit-on-epipe "~1.0.1"
 
+cohere-js@^1.0.16:
+  version "1.0.16"
+  resolved "https://registry.yarnpkg.com/cohere-js/-/cohere-js-1.0.16.tgz#ebaa6b4d9ed8caf9657b3415496a1786afd8dda5"
+  integrity sha512-r7n8q2AUPSLYo8bniiW2TTIV6LmnUiNThG8IaGnS8iMO83Ymn/FqdVy70Yzux5hX/c1aiAOHwwAluSiMbzs2hg==
+
 collapse-white-space@^1.0.0, collapse-white-space@^1.0.2:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/collapse-white-space/-/collapse-white-space-1.0.6.tgz#e63629c0016665792060dbbeb79c42239d2c5287"
