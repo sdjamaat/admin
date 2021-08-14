@@ -19,7 +19,7 @@ const HijriMonthForm = ({ monthsFinished, setStep, values, setValues }) => {
 
   const { getHijriDate } = useContext(DateContext)
   const currentHijriMonth = getHijriDate().month
-  const currentHijriYear = getHijriDate().year
+  const currentHijriYear = getHijriDate().year - 1
 
   const onFinish = values => {
     if (values.hijrimonth === "moharram") {
