@@ -51,7 +51,7 @@ const ViewSubmissions = () => {
         .doc("moharram")
         .get()
 
-      if (moharramPast.data().submissions.length > 0) {
+      if (moharramPast && moharramPast.data().submissions.length > 0) {
         filteredMenus.push({
           shortMonthName: "moharram",
           longMonthName: shortMonthToLongMonth("moharram"),

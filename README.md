@@ -80,3 +80,13 @@ firebase deploy --only functions
 Cohere Dashboard: https://app.cohere.so/dashboard
 
 > In order to access the dashboard you must login with the webmaster@sandiegojamaat.net Google account. If you need access to this account, ask Ibrahim.
+
+### Trello Board
+
+Access the Trello board to suggest new tasks and centralize the collection of support tickets:
+
+[SD Jamaat Website Trello Board](https://trello.com/b/7tlGo398/main-site-admin-panel)
+
+It is currently public, should be accessible to all but you might need an account to make changes.
+
+This Trello board is linked to our email webmaster@sandiegojamaat.net
