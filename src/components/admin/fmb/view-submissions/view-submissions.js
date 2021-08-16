@@ -19,7 +19,7 @@ const ViewSubmissions = () => {
   const getMenusWithSubmissions = async () => {
     try {
       let filteredMenus = []
-      const hijriYear = getHijriDate().year - 1
+      const hijriYear = getHijriDate().year
       const menus = await firebase
         .firestore()
         .collection("fmb")
@@ -74,7 +74,7 @@ const ViewSubmissions = () => {
 
     const shortMonthName = menusWithSubmissions[index].shortMonthName
     const isPrevMoharram = menusWithSubmissions[index].isPrevMoharram
-    const hijriYear = getHijriDate().year - 1
+    const hijriYear = getHijriDate().year
     const submissions = await firebase
       .firestore()
       .collection("fmb")
