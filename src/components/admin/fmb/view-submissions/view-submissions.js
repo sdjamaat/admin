@@ -51,12 +51,14 @@ const ViewSubmissions = () => {
         .doc("moharram")
         .get()
 
-      if (moharramPast && moharramPast.data().submissions.length > 0) {
+      const moharramPastData = moharramPast.data()
+
+      if (moharramPastData && moharramPastData.submissions.length > 0) {
         filteredMenus.push({
           shortMonthName: "moharram",
           longMonthName: shortMonthToLongMonth("moharram"),
-          items: moharramPast.data().items,
-          displayYear: moharramPast.data().displayYear,
+          items: moharramPastData.items,
+          displayYear: moharramPastData.displayYear,
           isPrevMoharram: true,
         })
       }
