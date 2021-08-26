@@ -90,3 +90,14 @@ Access the Trello board to suggest new tasks and centralize the collection of su
 It is currently public, should be accessible to all but you might need an account to make changes.
 
 This Trello board is linked to our email webmaster@sandiegojamaat.net
+
+### Demo credentials
+
+When you develop the site locally, it will automatically connect to the dev instance of the DB. This means that we also need different login credentials that are linked to the dev firebase instance (instead of prod).
+
+#### Demo ADMIN
+
+Email: admin@demo.com
+Password: Demo123 (**case-sensitive**)
+
+> This gives you access to all admin panel functions. There is another FMB demo account but it didn't make sense to put those creds here. Using this login should give you dev ability to access all tools in the admin panel.
