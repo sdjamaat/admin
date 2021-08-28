@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react"
-import { Card, Select, Alert, Divider, Collapse, Button } from "antd"
+import { Card, Select, Alert, Menu, Collapse, Button, Divider } from "antd"
 import styled from "styled-components"
 import firebase from "gatsby-plugin-firebase"
 import { DateContext } from "../../../../provider/date-context"
@@ -15,6 +15,7 @@ const ViewSubmissions = () => {
   const [submissions, setSubmissions] = useState([])
   const [currSelectedMenuIndex, setCurrSelectedMenuIndex] = useState(0)
   const { getHijriDate } = useContext(DateContext)
+  const [showSubmissionsTab, setShowSubmissionsTab] = useState(true)
 
   const getMenusWithSubmissions = async () => {
     try {
@@ -236,6 +237,14 @@ const ViewSubmissions = () => {
     )
   }
 
+  const handleSecondaryMenuChange = event => {
+    if (event.key === "submissions") {
+      setShowSubmissionsTab(true)
+    } else if (event.key === "missing") {
+      setShowSubmissionsTab(false)
+    }
+  }
+
   useEffect(() => {
     getMenusWithSubmissions()
   }, [])
@@ -249,7 +258,7 @@ const ViewSubmissions = () => {
         {menusWithSubmissions === null ? (
           <div>Loading...</div>
         ) : menusWithSubmissions.length > 0 ? (
-          <>
+          <div id="allsubmittedmenus">
             <div style={{ paddingBottom: ".5rem" }}>Choose Month:</div>
             <Select style={{ width: "100%" }} onChange={handleChangeMenu}>
               {menusWithSubmissions.map((menu, index) => {
@@ -260,12 +269,31 @@ const ViewSubmissions = () => {
                 )
               })}
             </Select>
-            {submissions.length > 0 && (
-              <>
-                <Divider style={{ paddingTop: ".5rem" }} orientation="left">
-                  Submissions
-                </Divider>
 
+            {submissions.length > 0 && (
+              <div>
+                <Divider
+                  style={{ paddingTop: "1rem", marginBottom: "-1rem" }}
+                  orientation="center"
+                >
+                  {menusWithSubmissions[currSelectedMenuIndex].longMonthName +
+                    " " +
+                    menusWithSubmissions[currSelectedMenuIndex].displayYear}
+                </Divider>
+                <Menu
+                  style={{ paddingBottom: "1rem", paddingTop: "1rem" }}
+                  onClick={e => handleSecondaryMenuChange(e)}
+                  selectedKeys={showSubmissionsTab ? "submissions" : "missing"}
+                  mode="horizontal"
+                >
+                  <Menu.Item key="submissions">Submitted Data</Menu.Item>
+                  <Menu.Item key="missing">Missing Submissions</Menu.Item>
+                </Menu>
+              </div>
+            )}
+
+            {submissions.length > 0 && showSubmissionsTab && (
+              <div id="allsubmissions">
                 {submissions.map((submission, index) => {
                   return (
                     <Collapse style={{ marginBottom: ".5rem" }} key={index}>
@@ -343,9 +371,10 @@ const ViewSubmissions = () => {
                 >
                   Export Submission Data
                 </Button>
-              </>
+              </div>
             )}
-          </>
+            {!showSubmissionsTab && <div>Work some magic here</div>}
+          </div>
         ) : (
           <Alert
             type="warning"
