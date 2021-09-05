@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import styled from "styled-components"
 import { onFinishFailed } from "../../../../functions/forms"
 import {
@@ -16,6 +16,7 @@ import {
   Popover,
 } from "antd"
 import CustomMessage from "../../../custom-message"
+import Checklist from "./presubmit-checklist"
 import { Row, Col } from "react-bootstrap"
 import { UploadOutlined } from "@ant-design/icons"
 import * as XLSX from "xlsx"
@@ -24,6 +25,14 @@ import moment from "moment"
 const layout = {
   labelCol: { span: 24 },
   wrapperCol: { span: 24 },
+}
+
+const isNameValid = name => {
+  if (name !== null) {
+    name = name.replace(/\s+/g, "").toLowerCase()
+    return name !== "nothaali"
+  }
+  return false
 }
 
 const importExcel = (file, menuItemForm) => {
@@ -42,11 +51,14 @@ const importExcel = (file, menuItemForm) => {
           let isProperlyParsed = true
           data.forEach(x => {
             // first make array of items
-            allMenuItems.push({
-              name: x.Item ? x.Item : null,
-              date: x.Date ? moment(x.Date) : null,
-              nothaali: undefined,
-            })
+            let nameValid = isNameValid(x.Item)
+            if (nameValid) {
+              allMenuItems.push({
+                name: x.Item ? x.Item : null,
+                date: x.Date ? moment(x.Date) : null,
+                nothaali: undefined,
+              })
+            }
           })
 
           // validate
@@ -93,19 +105,40 @@ const MenuItemsForm = ({
   // this is an array that tracks which 'name' inputs should be disabled
   const [disabledItems, setDisabledItems] = useState(disabledValues)
 
+  // checklist modal
+  const [showChecklist, setShowChecklist] = useState(false)
+
+  // is checklist complete
+  const [isChecklistComplete, setIsChecklistComplete] = useState(false)
+
+  const [checklistItems, setChecklistItems] = useState([
+    {
+      name: '"No Thaali" is not an item',
+      checked: false,
+    },
+    {
+      name:
+        '"No Thaali" checkbox is clicked on Miqaat or no thaali days (with an optional reason)',
+      checked: false,
+    },
+    { name: "All item dates are correct", checked: false },
+  ])
   /*
     After form is completed, save values, disabled inputs array, and move on to review screen
     The items array can be potentially empty if no items have been added, thus we check if it's length > 0
   */
-  const onFinish = values => {
-    if (values.items.length > 0) {
-      console.log(values)
-      setValues(values)
-      setDisabledValues(disabledItems)
-      setStep("reviewmenu")
+  const onFinish = ({ items }) => {
+    if (items && items.length > 0) {
+      setShowChecklist(true)
     } else {
       CustomMessage("error", "No items added to menu")
     }
+  }
+
+  const moveOnToNext = () => {
+    setValues(menuItemsForm.getFieldsValue())
+    setDisabledValues(disabledItems)
+    setStep("reviewmenu")
   }
 
   /* 
@@ -148,7 +181,7 @@ const MenuItemsForm = ({
     After an item is deleted, then reset the disabled items array
     This is done by looking at all the field values after deletion
     If their 'name' field contains None, then add them to the array
-    There is probably a better way to do this...
+    There is probably a better way to do this...i cry errytime...
   */
   const resetDisabledItemsArrayAfterItemDelete = async () => {
     let fieldValuesAfterRemoval = menuItemsForm.getFieldsValue().items
@@ -173,6 +206,15 @@ const MenuItemsForm = ({
 
   return (
     <MenuItemsWrapper>
+      {showChecklist && (
+        <Checklist
+          setShowChecklist={setShowChecklist}
+          checklistItems={checklistItems}
+          setChecklistItems={setChecklistItems}
+          setIsChecklistComplete={setIsChecklistComplete}
+          onOkayHandler={moveOnToNext}
+        />
+      )}
       <div style={{ textAlign: "center" }}>
         <Tag
           className="float-center"
