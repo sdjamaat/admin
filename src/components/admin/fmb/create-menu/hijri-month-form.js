@@ -23,7 +23,6 @@ const HijriMonthForm = ({ monthsFinished, setStep, values, setValues }) => {
 
   const onFinish = values => {
     if (values.hijrimonth === "moharram") {
-      ;``
       setValues({ hijrimonth: "moharram", year: currentHijriYear + 1 })
     } else {
       setValues({ hijrimonth: values.hijrimonth, year: currentHijriYear })
