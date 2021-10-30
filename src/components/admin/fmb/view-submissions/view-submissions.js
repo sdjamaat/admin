@@ -218,17 +218,17 @@ const ViewSubmissions = () => {
     flatSheet["!cols"] = fitToColumn(flatSheetRows)
     xlsx.utils.book_append_sheet(newWB, flatSheet, "All Items")
 
-    for (let menuItemSheet of menuItemSheets) {
-      const firstRow = menuItemSheet.rows[0]
-      menuItemSheet.rows[0] = {
-        Item: menuItemSheet.item,
-        Date: menuItemSheet.date,
-        ...firstRow,
-      }
-      let sheet = xlsx.utils.json_to_sheet(menuItemSheet.rows)
-      sheet["!cols"] = fitToColumn(menuItemSheet.rows)
-      xlsx.utils.book_append_sheet(newWB, sheet, menuItemSheet.name)
-    }
+    // for (let menuItemSheet of menuItemSheets) {
+    //   const firstRow = menuItemSheet.rows[0]
+    //   menuItemSheet.rows[0] = {
+    //     Item: menuItemSheet.item,
+    //     Date: menuItemSheet.date,
+    //     ...firstRow,
+    //   }
+    //   let sheet = xlsx.utils.json_to_sheet(menuItemSheet.rows)
+    //   sheet["!cols"] = fitToColumn(menuItemSheet.rows)
+    //   xlsx.utils.book_append_sheet(newWB, sheet, menuItemSheet.name)
+    // }
 
     xlsx.writeFile(
       newWB,
