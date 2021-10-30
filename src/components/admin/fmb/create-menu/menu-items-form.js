@@ -59,6 +59,16 @@ const importExcel = (file, menuItemForm) => {
                 nothaali: undefined,
               })
             }
+
+            let sepItem = x['Separated Item']
+
+            if(sepItem) {
+              allMenuItems.push({
+                name: sepItem ? sepItem : null,
+                date: x.Date ? moment(x.Date) : null,
+                nothaali: undefined,
+              })
+            }
           })
 
           // validate
