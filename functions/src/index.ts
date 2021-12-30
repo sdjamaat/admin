@@ -1,6 +1,8 @@
 import * as functions from "firebase-functions"
 const sgMail = require("@sendgrid/mail")
 import * as admin from "firebase-admin"
+import { ThaaliSubmissionEmailData } from "./types"
+import { myCustomError } from "./logger"
 admin.initializeApp(functions.config().firebase)
 
 // sendgrid key
@@ -22,6 +24,9 @@ const TEMPLATE_ID_NEW_USER_REGISTRATION_JAMAAT =
 const TEMPLATE_ID_NEW_USER_REGISTRATION_RECIEPT =
   "d-8ab3d1a0fd3647e381a5f5501251c979"
 
+// template for when a user submits their thaali preferences
+const TEMPLATE_ID_THAALI_SUBMISSIONS = "d-e332ce29c6634d60b29322827eeb0d0b"
+
 /*
 Triggered when a user submits information via the contact us form on the homepage of the website we send two emails
 First email: sent to jamaat admins to let them know someone has submitted an inquiry
@@ -33,7 +38,14 @@ export const newContactFormSubmission = functions.firestore
     const submission = change.data() || {}
     const jamaat_email = {
       to: ["umoor-dakhiliya@sandiegojamaat.net"],
-      cc: [submission.email,"ibrahim.0814@gmail.com", "murtaza.mister@gmail.com", "qsdoctor@gmail.com", "saifees@gmail.com", "chhatri@gmail.com"],
+      cc: [
+        submission.email,
+        "ibrahim.0814@gmail.com",
+        "murtaza.mister@gmail.com",
+        "qsdoctor@gmail.com",
+        "saifees@gmail.com",
+        "chhatri@gmail.com",
+      ],
       from: "webmaster@sandiegojamaat.net",
       templateId: TEMPLATE_ID_CONTACT_US_JAMAAT,
       dynamic_template_data: {
@@ -72,7 +84,14 @@ export const newUserRegistration = functions.firestore
     const submission = change.data() || {}
     const jamaat_email = {
       to: ["umoor-dakhiliya@sandiegojamaat.net"],
-      cc: [submission.email, "ibrahim.0814@gmail.com", "murtaza.mister@gmail.com", "qsdoctor@gmail.com", "saifees@gmail.com", "chhatri@gmail.com"],
+      cc: [
+        submission.email,
+        "ibrahim.0814@gmail.com",
+        "murtaza.mister@gmail.com",
+        "qsdoctor@gmail.com",
+        "saifees@gmail.com",
+        "chhatri@gmail.com",
+      ],
       from: "webmaster@sandiegojamaat.net",
       templateId: TEMPLATE_ID_NEW_USER_REGISTRATION_JAMAAT,
       dynamic_template_data: {
@@ -150,5 +169,45 @@ export const disableNewRegistration = functions.https.onCall(
       .catch(function (error) {
         console.log("Error updating user:", error)
       })
+  }
+)
+
+export const sendEmailAfterThaaliSubmission = functions.https.onCall(
+  async (data: ThaaliSubmissionEmailData, context) => {
+    const thaali_submission_email = {
+      to: [...data.userEmails],
+      from: "webmaster@sandiegojamaat.net",
+      reply_to_list: [
+        {
+          email: "faizulmawaidilburhaniyah.sd@gmail.com",
+          name: "Faiz-ul-Mawaid San Diego",
+        },
+        {
+          email: "qsdoctor@gmail.com",
+          name: "Qutbuddin Doctor",
+        },
+        {
+          email: "ibrahim.0814@gmail.com",
+          name: "Ibrahim Darugar",
+        },
+      ],
+      templateId: TEMPLATE_ID_THAALI_SUBMISSIONS,
+      dynamic_template_data: {
+        itemSelections: data.itemSelections,
+        hijriMonthName: data.hijriMonthName,
+        hijriYear: data.hijriYear,
+        familyDisplayName: data.familyDisplayName,
+      },
+    }
+
+    try {
+      return Promise.all([sgMail.sendMultiple(thaali_submission_email)])
+    } catch (err) {
+      myCustomError(
+        "Failed to send thaali confirmation email, error is attached here:",
+        err
+      )
+      return Promise.resolve()
+    }
   }
 )
