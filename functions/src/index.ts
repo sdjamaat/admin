@@ -177,13 +177,10 @@ export const sendEmailAfterThaaliSubmission = functions.https.onCall(
     const thaali_submission_email = {
       to: [...data.userEmails],
       from: "webmaster@sandiegojamaat.net",
-      replyTo: [
-        {
-          email: "faizulmawaidilburhaniyah.sd@gmail.com",
-          name: "Faiz-ul-Mawaid San Diego",
-        },
-      
-      ],
+      replyTo: {
+        email: "faizulmawaidilburhaniyah.sd@gmail.com",
+        name: "Faiz-ul-Mawaid San Diego",
+      },
       templateId: TEMPLATE_ID_THAALI_SUBMISSIONS,
       dynamic_template_data: {
         itemSelections: data.itemSelections,
