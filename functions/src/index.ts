@@ -190,14 +190,23 @@ export const sendEmailAfterThaaliSubmission = functions.https.onCall(
       },
     }
 
-    try {
-      return Promise.all([sgMail.sendMultiple(thaali_submission_email)])
-    } catch (err) {
-      myCustomError(
-        "Failed to send thaali confirmation email, error is attached here:",
-        err
-      )
-      return Promise.resolve()
+    let sentSuccessfully = false
+    let numTry = 0
+    const maxRetry = 3
+
+    while (sentSuccessfully === false && numTry < maxRetry) {
+      numTry+=1
+      try {
+        await sgMail.sendMultiple(thaali_submission_email)
+        sentSuccessfully = true
+        return Promise.resolve()
+      } catch (err) {
+        myCustomError(
+          "Failed to send thaali confirmation email, error is attached here:",
+          err
+        )
+      }
     }
+    return Promise.resolve()
   }
 )
