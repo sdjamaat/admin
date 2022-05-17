@@ -1,9 +1,19 @@
 import React, { useEffect, useState, useContext } from "react"
-import { Card, Select, Alert, Divider, Collapse, Button } from "antd"
+import {
+  Card,
+  Select,
+  Alert,
+  Divider,
+  Collapse,
+  Button,
+  Popconfirm,
+  message,
+} from "antd"
 import styled from "styled-components"
 import firebase from "gatsby-plugin-firebase"
 import { DateContext } from "../../../../provider/date-context"
 import { shortMonthToLongMonth } from "../../../../functions/calendar"
+import { cloneDeep } from "lodash"
 const moment = require("moment")
 const xlsx = require("xlsx")
 
@@ -14,7 +24,30 @@ const ViewSubmissions = () => {
   const [menusWithSubmissions, setMenusWithSubmissions] = useState(null)
   const [submissions, setSubmissions] = useState([])
   const [currSelectedMenuIndex, setCurrSelectedMenuIndex] = useState(0)
+  const [
+    allFamiliesEnrolledInFMBMap,
+    setAllFamiliesEnrolledInFMBMap,
+  ] = useState({})
+  const [familiesWithoutSubmissions, setFamiliesWithoutSubmissions] = useState(
+    []
+  )
   const { getHijriDate } = useContext(DateContext)
+
+  const getAllFamiliesEnrolledInFMB = async () => {
+    try {
+      let allEnrolledFamilies = {}
+      const families = await firebase.firestore().collection("families").get()
+      families.forEach(family => {
+        const data = family.data()
+        if (data.fmb.enrolled) {
+          allEnrolledFamilies[data.familyid] = data
+        }
+      })
+      setAllFamiliesEnrolledInFMBMap(allEnrolledFamilies)
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   const getMenusWithSubmissions = async () => {
     try {
@@ -77,6 +110,7 @@ const ViewSubmissions = () => {
     const shortMonthName = menusWithSubmissions[index].shortMonthName
     const isPrevMoharram = menusWithSubmissions[index].isPrevMoharram
     const hijriYear = getHijriDate().year
+    let allFamiliesEnrolledInFMBMapCopy = cloneDeep(allFamiliesEnrolledInFMBMap)
     const submissions = await firebase
       .firestore()
       .collection("fmb")
@@ -88,9 +122,14 @@ const ViewSubmissions = () => {
     submissions.forEach(doc => {
       const data = doc.data()
       submissionsArr.push({ ...data, familyid: doc.id })
+      delete allFamiliesEnrolledInFMBMapCopy[doc.id]
     })
     setCurrSelectedMenuIndex(index)
     setSubmissions(submissionsArr)
+    console.log(Object.values(allFamiliesEnrolledInFMBMapCopy))
+    setFamiliesWithoutSubmissions(
+      Object.values(allFamiliesEnrolledInFMBMapCopy)
+    )
   }
 
   const sortSelectionsByThaaliSize = (a, b) => {
@@ -236,8 +275,52 @@ const ViewSubmissions = () => {
     )
   }
 
+  const handleDeleteSubmission = async (submission, submissionIndex) => {
+    const shortMonthName =
+      menusWithSubmissions[currSelectedMenuIndex].shortMonthName
+    const isPrevMoharram =
+      menusWithSubmissions[currSelectedMenuIndex].isPrevMoharram
+    const hijriYear = getHijriDate().year
+
+    try {
+      // delete submissions doc
+      await firebase
+        .firestore()
+        .collection("fmb")
+        .doc(isPrevMoharram ? (hijriYear - 1).toString() : hijriYear.toString())
+        .collection("menus")
+        .doc(shortMonthName)
+        .collection("submissions")
+        .doc(submission.familyid)
+        .delete()
+
+      // delete family id from the submissions array
+      await firebase
+        .firestore()
+        .collection("fmb")
+        .doc(isPrevMoharram ? (hijriYear - 1).toString() : hijriYear.toString())
+        .collection("menus")
+        .doc(shortMonthName)
+        .update({
+          submissions: firebase.firestore.FieldValue.arrayRemove(
+            submission.familyDisplayName
+          ),
+        })
+
+      // delete the entry in current state object
+      let submissionsCopy = cloneDeep(submissions)
+      submissionsCopy.splice(submissionIndex, 1)
+      setSubmissions(submissionsCopy)
+
+      message.success("Successfully deleted submission")
+    } catch (err) {
+      message.error("Error deleting the submission")
+    }
+  }
+
   useEffect(() => {
     getMenusWithSubmissions()
+    getAllFamiliesEnrolledInFMB()
   }, [])
 
   return (
@@ -260,10 +343,20 @@ const ViewSubmissions = () => {
                 )
               })}
             </Select>
+            {familiesWithoutSubmissions.length > 0 && (
+              <>
+                <Divider style={{ paddingTop: ".5rem" }} orientation="left">
+                  No Submissions:
+                </Divider>
+                {familiesWithoutSubmissions.map((family, index) => {
+                  return <div key={index}>{family.displayname}</div>
+                })}
+              </>
+            )}
             {submissions.length > 0 && (
               <>
                 <Divider style={{ paddingTop: ".5rem" }} orientation="left">
-                  Submissions
+                  Successful Submissions
                 </Divider>
 
                 {submissions.map((submission, index) => {
@@ -291,6 +384,7 @@ const ViewSubmissions = () => {
                             </Button>
                           </Popconfirm>
                         </p>
+
                         {menusWithSubmissions[currSelectedMenuIndex].items.map(
                           (item, index) => {
                             if (!item.nothaali) {

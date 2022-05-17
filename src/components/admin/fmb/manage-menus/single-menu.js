@@ -177,7 +177,6 @@ const SingleMenu = ({
         <Collapse style={{ padding: "-10px" }}>
           <Panel header="Items" key="1">
             {menu.items.map((item, index) => {
-              console.log(item)
               return (
                 <div key={index}>
                   <Row style={{ marginBottom: "1.2rem" }}>
