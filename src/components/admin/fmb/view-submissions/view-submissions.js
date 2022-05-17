@@ -274,6 +274,22 @@ const ViewSubmissions = () => {
                           <strong>Submitted by:</strong>{" "}
                           {submission.submittedBy.firstname}{" "}
                           {submission.submittedBy.lastname}
+                          <Popconfirm
+                            title="Are you sure you want to delete this submission?"
+                            onConfirm={() =>
+                              handleDeleteSubmission(submission, index)
+                            }
+                            okType="danger"
+                            showCancel={false}
+                            okText="Yes"
+                          >
+                            <Button
+                              type="danger"
+                              style={{ marginLeft: "10px" }}
+                            >
+                              Delete Submission
+                            </Button>
+                          </Popconfirm>
                         </p>
                         {menusWithSubmissions[currSelectedMenuIndex].items.map(
                           (item, index) => {
