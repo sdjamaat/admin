@@ -27,7 +27,7 @@ const AdminMenu = ({
   const { width } = useWindowDimensions()
   const { currUser } = useContext(AuthContext)
 
-  const [currMenuKey, setCurrMenuKey] = useState(["users"])
+  const [currMenuKey, setCurrMenuKey] = useState(["fmb"])
 
   const handleMenuOpenClose = value => {
     setCurrMenuKey(value)
