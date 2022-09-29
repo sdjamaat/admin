@@ -97,7 +97,6 @@ When you develop the site locally, it will automatically connect to the dev inst
 
 #### Demo ADMIN
 
-Email: admin@demo.com
-Password: Demo123 (**case-sensitive**)
+Ask Ibrahim about admin credentials
 
 > This gives you access to all admin panel functions. There is another FMB demo account but it didn't make sense to put those creds here. Using this login should give you dev ability to access all tools in the admin panel.
