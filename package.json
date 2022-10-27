@@ -15,6 +15,9 @@
     "dev": "nodemon --exec 'kill-port --port 4000 && gatsby develop -p 4000' --watch gatsby-node.js --watch package.json --watch gatsby-config.js"
   },
   "dependencies": {
+    "@pdfme/generator": "^1.0.17",
+    "@pdfme/ui": "^1.0.17",
+    "@react-pdf/renderer": "^3.0.0",
     "antd": "4.2.0",
     "babel-plugin-styled-components": "1.13.3",
     "bootstrap": "4.6.1",
