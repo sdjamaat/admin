@@ -56,6 +56,17 @@ cd functions
 npm install
 ```
 
+Step 3: Configure .env file
+
+Create a file and name it .env inside the functions folder
+You can set the SendGrid API key here
+
+```
+SENDGRID_API_KEY=value
+```
+
+You can find the SENDGRID_API_KEY in the .env.development file in the `important-files` repository
+
 #### To deploy new functions:
 
 Helpful link: https://firebase.googleblog.com/2016/07/deploy-to-multiple-environments-with.html

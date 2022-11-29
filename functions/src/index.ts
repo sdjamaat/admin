@@ -6,8 +6,7 @@ import { myCustomError } from "./logger"
 admin.initializeApp(functions.config().firebase)
 
 // sendgrid key
-const API_KEY =
-  "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"
+const API_KEY = process.env.SENDGRID_API_KEY
 sgMail.setApiKey(API_KEY)
 
 // template for contact us submission email that is sent to jamaat admins
@@ -195,7 +194,7 @@ export const sendEmailAfterThaaliSubmission = functions.https.onCall(
     const maxRetry = 3
 
     while (sentSuccessfully === false && numTry < maxRetry) {
-      numTry+=1
+      numTry += 1
       try {
         await sgMail.sendMultiple(thaali_submission_email)
         sentSuccessfully = true
