@@ -1,5 +1,35 @@
-export interface IExample {
-    chicken: string,
-    nugget: number
+export interface SingleImportedThaaliSelection {
+  Week: string
+  Distribution: string
+  "Distribution Day": string
+  Date: string
+  Hijri: number
+  Code: string
+  Size: ThaaliTypes
+  Family: string
+  Item: string
+  Mohalla: string
+  HalfEquiv: number
+  Chef: string
+  ItemComplex: string
+  "Original Size": string
 }
 
+export enum ThaaliTypes {
+  Full = "Full",
+  Half = "Half",
+  Quarter = "Quarter",
+  None = "None",
+}
+
+export interface SplitItem {
+  key: string
+  name: string
+  sizeAppliedTo: ThaaliTypes
+}
+
+export interface UniqueItem {
+  itemMetadata: SingleImportedThaaliSelection
+  isSplit: boolean
+  splitArray: SplitItem[]
+}

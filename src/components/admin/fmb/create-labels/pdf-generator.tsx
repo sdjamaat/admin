@@ -10,23 +10,7 @@ import {
   PDFDownloadLink,
 } from "@react-pdf/renderer"
 import moment from "moment"
-
-// const SELECTIONTYPE = {
-//   "Week": "2022-09-26T07:00:00.000Z",
-//   "Distribution": "2022-09-26T07:00:00.000Z",
-//   "Distribution Day": "2022-09-26T07:00:00.000Z",
-//   "Date": "2022-09-26T07:00:00.000Z",
-//   "Hijri": 1,
-//   "Code": "SR-BC",
-//   "Size": "Quarter",
-//   "Family": "Channiwala Family (Burhan)",
-//   "Item": "Achari Chicken",
-//   "Mohalla": "SR",
-//   "HalfEquiv": 0.5,
-//   "Chef": "Humaira ben",
-//   "ItemComplex": "Achari Chicken - Humaira ben",
-//   "Original Size": "Quarter"
-// }
+import { SingleImportedThaaliSelection } from "../../../../utils/types"
 
 const styles = StyleSheet.create({
   body: {
@@ -50,16 +34,14 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     gap: "10px",
-    overflow: "hidden",
     fontSize: "12px",
     padding: "5px",
   },
 })
 
-const getColorForCode = item => {
+const getColorForCode = (item: SingleImportedThaaliSelection) => {
   if (item.Code) {
     const codeBeggining = item.Code.split("-")[0]
-    console.log(codeBeggining)
     switch (codeBeggining) {
       case "SR":
         return "#FF0000" // "red"
@@ -85,7 +67,7 @@ const getColorForCode = item => {
   }
 }
 
-const getFormattedItemName = item => {
+const getFormattedItemName = (item: string) => {
   // limits item length to 12 characters
   if (item.length > 12) {
     return item.substring(0, 12) + "..."
@@ -94,10 +76,15 @@ const getFormattedItemName = item => {
   }
 }
 
-const AllLabelsDocument = ({ data }) => {
+interface PropsAllLabelsDocument {
+  data: SingleImportedThaaliSelection[]
+}
+
+const AllLabelsDocument = ({ data }: PropsAllLabelsDocument) => {
   return (
     <Document>
       <Page
+        // @ts-ignore
         size="Letter"
         style={{
           ...styles.body,
