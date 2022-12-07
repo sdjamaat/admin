@@ -56,9 +56,11 @@ const getColorForCode = (item: SingleImportedThaaliSelection) => {
       case "RB":
         return "#8F00FF" // "violet"
       case "CV":
-        return "#AA336A" // "dark pink"
+        return "#FF00FF" // "bright pink"
       case "WW":
-        return "#8B8000" // "dark yellow"
+        return "#006400" // "dark yellow"
+      case "MM":
+        return "#00FFFF" // "bright turquoise"
       default:
         return "#000000" // "black"
     }
@@ -109,7 +111,7 @@ const AllLabelsDocument = ({ data }: PropsAllLabelsDocument) => {
                   marginLeft: "40px",
                 }}
               >
-                <Text>{moment(item.Distribution).format("ddd-MMM-Do")}</Text>
+                <Text>{item.Distribution}</Text>
                 <Text>{getFormattedItemName(item.Item)}</Text>
                 <Text>{item.Family.split(" ")[0]}</Text>
               </div>

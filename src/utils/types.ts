@@ -20,6 +20,8 @@ export enum ThaaliTypes {
   Half = "Half",
   Quarter = "Quarter",
   None = "None",
+  Period = ".",
+  Empty = "",
 }
 
 export interface SplitItem {

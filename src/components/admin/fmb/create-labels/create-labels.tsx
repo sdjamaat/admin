@@ -9,8 +9,9 @@ import {
   Input,
   Typography,
   Alert,
+  InputNumber,
 } from "antd"
-import { DeleteOutlined } from "@ant-design/icons"
+import { DeleteOutlined, CheckCircleOutlined } from "@ant-design/icons"
 import styled from "styled-components"
 import * as XLSX from "xlsx"
 import CustomMessage from "../../../custom-message"
@@ -21,6 +22,7 @@ import {
   ThaaliTypes,
 } from "../../../../utils/types"
 import useDebounce from "../../../../custom-hooks/useDebounce"
+import moment from "moment"
 
 const { Option } = Select
 const { Text } = Typography
@@ -69,6 +71,11 @@ const CreateLabels = () => {
   const [pdfData, setPdfData] = React.useState<SingleImportedThaaliSelection[]>(
     []
   )
+  const [uniqueCodes, setUniqueCodes] = React.useState<Set<string>>(new Set())
+  const [fileName, setFileName] = React.useState("")
+  const [numStartingBlanks, setNumStartingBlanks] = React.useState<
+    number | null
+  >(0)
   const debouncedPDFDataValue = useDebounce(pdfData, 1000)
 
   const onDropdownSelectChange = (value: string) => {
@@ -86,7 +93,13 @@ const CreateLabels = () => {
       try {
         // @ts-ignore
         const { result } = event.target
+
+        // Extract the file name from the file object
+        setFileName(file.name)
+
+        // get workbook object
         const workbook = XLSX.read(result, { type: "binary", cellDates: true })
+
         for (const Sheet in workbook.Sheets) {
           //XLSX.utils.sheet_to_row_object_array(workbook.Sheets["chicken"])
           if (workbook.Sheets.hasOwnProperty(Sheet)) {
@@ -98,15 +111,19 @@ const CreateLabels = () => {
             let distributionDateMap: DistributionDayMapType = {}
 
             data.forEach((x: SingleImportedThaaliSelection) => {
-              //TODO: ADD TYPE FOR X see above
-              //example: x["Size"] = "None"
               if (x.Size !== "None") {
                 // first make array of items
                 allSelections.push(x)
 
                 // then make map of distribution dates
+                // {date: [selections]}
                 if (x["Distribution"]) {
-                  let date = new Date(x["Distribution"]).toLocaleDateString()
+                  let date = moment(x["Distribution"])
+                    .format("ddd-MMM-Do")
+                    .toString()
+
+                  // doing this just to we save the date in the right format (string)
+                  x["Distribution"] = date
                   if (distributionDateMap[date]) {
                     distributionDateMap[date].push(x)
                   } else {
@@ -116,6 +133,9 @@ const CreateLabels = () => {
               }
             })
 
+            if (allSelections.length === 0) {
+              throw new Error("No data found in excel file")
+            }
             setAllSelections(allSelections)
             setDistributionDateMap(distributionDateMap)
 
@@ -203,9 +223,35 @@ const CreateLabels = () => {
     setUniqueItems(newUniqueItems)
   }
 
+  const emptyThaaliSelection: SingleImportedThaaliSelection = {
+    Item: "",
+    Size: ThaaliTypes.Empty,
+    Distribution: "",
+    Family: "",
+    Code: "",
+    Week: "",
+    "Distribution Day": "",
+    Date: "",
+    Hijri: 0,
+    Mohalla: "",
+    HalfEquiv: 0,
+    Chef: "",
+    ItemComplex: "",
+    "Original Size": "",
+  }
+
   const buildPDFData = () => {
     let pdfData: SingleImportedThaaliSelection[] = []
 
+    // start by checking for number of starting blanks
+    // if there are any blanks then we need to add them to the pdf data
+    if (numStartingBlanks && numStartingBlanks > 0) {
+      for (let i = 0; i < numStartingBlanks; i++) {
+        pdfData.push({
+          ...emptyThaaliSelection,
+        })
+      }
+    }
     // go through each unique item which is a combination of split items,
     // for each split item determine if we need to filter it by size or not
     // find matching entries by item name and then fill in the entry
@@ -245,11 +291,12 @@ const CreateLabels = () => {
     setCurrDistributionDateData([])
     setDistributionDate("")
     setUniqueItems([])
+    setUniqueCodes(new Set())
   }, [allSelections, distributionDateMap])
 
   React.useEffect(() => {
     buildPDFData()
-  }, [uniqueItems])
+  }, [uniqueItems, numStartingBlanks])
 
   return (
     <CreateLabelsWrapper>
@@ -271,6 +318,15 @@ const CreateLabels = () => {
             }
           >
             <Button type="dashed">Import Label Data from Excel Sheet</Button>
+            {fileName && (
+              <span style={{ paddingLeft: "5px" }}>
+                {" "}
+                <CheckCircleOutlined
+                  style={{ color: "green", paddingRight: "5px" }}
+                />
+                {fileName}
+              </span>
+            )}
           </Popover>
         </Upload>
 
@@ -287,11 +343,7 @@ const CreateLabels = () => {
               {Object.keys(distributionDateMap).map(date => {
                 return (
                   <Option value={date} key={date}>
-                    {new Date(date).toLocaleDateString(
-                      undefined,
-                      // @ts-ignore
-                      DateStringOptions
-                    )}
+                    {date}
                   </Option>
                 )
               })}
@@ -375,12 +427,28 @@ const CreateLabels = () => {
                         })}
                       </div>
 
-                      <Button onClick={() => handleSplit(index)}>+ Item</Button>
+                      <Button onClick={() => handleSplit(index)}>
+                        Add Subitem
+                      </Button>
                     </div>
                     <Divider />
                   </div>
                 )
               })}
+            {uniqueItems.length > 0 && (
+              <div>
+                <InputNumber
+                  addonBefore="# Starting Blanks"
+                  min={0}
+                  max={30}
+                  defaultValue={0}
+                  value={numStartingBlanks}
+                  onChange={value => setNumStartingBlanks(value)}
+                />
+                <Divider />
+              </div>
+            )}
+
             {currDistributionDateData && distributionDate && (
               <LabelPDF data={debouncedPDFDataValue} />
             )}
