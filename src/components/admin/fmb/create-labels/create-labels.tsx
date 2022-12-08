@@ -10,6 +10,7 @@ import {
   Typography,
   Alert,
   InputNumber,
+  Checkbox,
 } from "antd"
 import { DeleteOutlined, CheckCircleOutlined } from "@ant-design/icons"
 import styled from "styled-components"
@@ -20,6 +21,7 @@ import {
   SingleImportedThaaliSelection,
   UniqueItem,
   ThaaliTypes,
+  SalawaatThaali,
 } from "../../../../utils/types"
 import useDebounce from "../../../../custom-hooks/useDebounce"
 import moment from "moment"
@@ -72,6 +74,13 @@ const CreateLabels = () => {
     []
   )
   const [uniqueCodes, setUniqueCodes] = React.useState<Set<string>>(new Set())
+  const [salawaatThaalis, setSalawaatThaalis] = React.useState<
+    SalawaatThaali[]
+  >([])
+  const [
+    shouldOnlyPrintSalawaatThaalis,
+    setShouldOnlyPrintSalawaatThaalis,
+  ] = React.useState<boolean>(false)
   const [fileName, setFileName] = React.useState("")
   const [numStartingBlanks, setNumStartingBlanks] = React.useState<
     number | null
@@ -84,7 +93,7 @@ const CreateLabels = () => {
       value === "All" ? allSelections : distributionDateMap[value]
     setDistributionDate(value)
     setCurrDistributionDateData(newSelectionData)
-    setUniqueItemsFromCurrDistributionDateData(newSelectionData)
+    setUniqueItemsAndCodesFromCurrDistributionDateData(newSelectionData)
   }
 
   const onImportExcel = (file: Blob) => {
@@ -95,6 +104,7 @@ const CreateLabels = () => {
         const { result } = event.target
 
         // Extract the file name from the file object
+        // @ts-ignore
         setFileName(file.name)
 
         // get workbook object
@@ -153,19 +163,29 @@ const CreateLabels = () => {
     fileReader.readAsBinaryString(file)
   }
 
-  const setUniqueItemsFromCurrDistributionDateData = (
+  const setUniqueItemsAndCodesFromCurrDistributionDateData = (
     newSelectionData: SingleImportedThaaliSelection[]
   ) => {
+    // array holds all items that we've aleady seen
     let reviewedItems: string[] = []
+
+    // set that holds all unique codes
+    let uniqueCodes: Set<string> = new Set()
+
+    // array holds all unique items (basically a set)
     let uniqueItems: UniqueItem[] = []
     for (let item of newSelectionData) {
       // get first entry for unique item
+
+      // add code to set
+      uniqueCodes.add(`${item.Code}:${item.Family}`)
+
       if (reviewedItems.includes(item.Item)) {
         continue
       } else {
+        // this unique item is formatted this way so that it can be used in the UI
         const itemWithAddedFields: UniqueItem = {
           itemMetadata: item,
-          isSplit: false,
           splitArray: [
             {
               name: item.Item,
@@ -179,8 +199,13 @@ const CreateLabels = () => {
       }
     }
     setUniqueItems(uniqueItems)
+    console.log(uniqueCodes)
+    setUniqueCodes(uniqueCodes)
+    setSalawaatThaalis([])
   }
 
+  // called when the user clicks on the "Add Subitem" button
+  // takes the item and adds a new entry into the splitArray
   const handleSplit = (index: number) => {
     const newUniqueItems = [...uniqueItems]
     const splitArray = newUniqueItems[index].splitArray
@@ -195,6 +220,7 @@ const CreateLabels = () => {
     setUniqueItems(newUniqueItems)
   }
 
+  // called when name is changed for any given item
   const handleChangeSplitItem = (
     itemIndex: number,
     splitIndex: number,
@@ -223,6 +249,27 @@ const CreateLabels = () => {
     setUniqueItems(newUniqueItems)
   }
 
+  const handleChangeSalawaatThaali = (index: number, value: any) => {
+    const newSalawaatThaalis = [...salawaatThaalis]
+    newSalawaatThaalis[index].name = value
+    setSalawaatThaalis(newSalawaatThaalis)
+  }
+
+  const handleAddSalawaatThaali = () => {
+    const newSalawaatThaalis = [...salawaatThaalis]
+    newSalawaatThaalis.push({
+      key: Math.random().toString(36),
+      name: "Sample Thaali",
+    })
+    setSalawaatThaalis(newSalawaatThaalis)
+  }
+
+  const handleDeleteSalawaatThaali = (index: number) => {
+    const newSalawaatThaalis = [...salawaatThaalis]
+    newSalawaatThaalis.splice(index, 1)
+    setSalawaatThaalis(newSalawaatThaalis)
+  }
+
   const emptyThaaliSelection: SingleImportedThaaliSelection = {
     Item: "",
     Size: ThaaliTypes.Empty,
@@ -240,11 +287,8 @@ const CreateLabels = () => {
     "Original Size": "",
   }
 
-  const buildPDFData = () => {
+  const addBlankThaaliSelection = (): SingleImportedThaaliSelection[] => {
     let pdfData: SingleImportedThaaliSelection[] = []
-
-    // start by checking for number of starting blanks
-    // if there are any blanks then we need to add them to the pdf data
     if (numStartingBlanks && numStartingBlanks > 0) {
       for (let i = 0; i < numStartingBlanks; i++) {
         pdfData.push({
@@ -252,38 +296,69 @@ const CreateLabels = () => {
         })
       }
     }
+    return pdfData
+  }
+
+  const buildPDFData = () => {
+    let pdfData: SingleImportedThaaliSelection[] = []
+
+    // start by checking for number of starting blanks
+    // if there are any blanks then we need to add them to the pdf data
+    pdfData = addBlankThaaliSelection()
+
     // go through each unique item which is a combination of split items,
     // for each split item determine if we need to filter it by size or not
     // find matching entries by item name and then fill in the entry
-    for (let item of uniqueItems) {
-      for (let splitItem of item.splitArray) {
-        // variable to hold the size filter for the split item
-        const sizeFilterForCurrItems =
-          splitItem.sizeAppliedTo === "None" ? null : splitItem.sizeAppliedTo
+    if (!shouldOnlyPrintSalawaatThaalis) {
+      for (let item of uniqueItems) {
+        for (let splitItem of item.splitArray) {
+          // variable to hold the size filter for the split item
+          const sizeFilterForCurrItems =
+            splitItem.sizeAppliedTo === "None" ? null : splitItem.sizeAppliedTo
 
-        for (let distributionDataItem of currDistributionDateData) {
-          // check if item name matches
-          if (distributionDataItem.Item === item.itemMetadata.Item) {
-            // if there's a size filter then only push if the size matches
-            if (sizeFilterForCurrItems !== null) {
-              if (distributionDataItem.Size === sizeFilterForCurrItems) {
+          for (let distributionDataItem of currDistributionDateData) {
+            // check if item name matches
+            if (distributionDataItem.Item === item.itemMetadata.Item) {
+              // if there's a size filter then only push if the size matches
+              // if we're supposed to apply this to only FULL thaalis then only push if the size is FULL
+              if (sizeFilterForCurrItems !== null) {
+                if (distributionDataItem.Size === sizeFilterForCurrItems) {
+                  pdfData.push({
+                    ...distributionDataItem,
+                    Item: splitItem.name,
+                  })
+                }
+              } else {
                 pdfData.push({
                   ...distributionDataItem,
                   Item: splitItem.name,
                 })
               }
             } else {
-              pdfData.push({
-                ...distributionDataItem,
-                Item: splitItem.name,
-              })
+              continue
             }
-          } else {
-            continue
           }
         }
       }
     }
+
+    // add in the salawaat thaalis
+    for (let code of uniqueCodes) {
+      const splitCode = code.split(":")
+      const familyCode = splitCode[0]
+      const familyName = splitCode[1]
+      for (let salawaatThaali of salawaatThaalis) {
+        pdfData.push({
+          ...emptyThaaliSelection,
+          Item: salawaatThaali.name,
+          Size: ThaaliTypes.Period,
+          Family: familyName,
+          Code: familyCode,
+          Distribution: distributionDate,
+        })
+      }
+    }
+
     setPdfData(pdfData)
   }
 
@@ -296,7 +371,12 @@ const CreateLabels = () => {
 
   React.useEffect(() => {
     buildPDFData()
-  }, [uniqueItems, numStartingBlanks])
+  }, [
+    uniqueItems,
+    numStartingBlanks,
+    salawaatThaalis,
+    shouldOnlyPrintSalawaatThaalis,
+  ])
 
   return (
     <CreateLabelsWrapper>
@@ -354,7 +434,7 @@ const CreateLabels = () => {
             <Divider />
             {uniqueItems.length > 0 && (
               <Alert
-                message="You can change the item names, split items into multiple items, and choose what thaali sizes to apply split items towards below"
+                message="You can change the item names, split items into multiple items, and choose what thaali sizes to apply split items towards, add additional thaalis which will only be applied to the SET of thaali takers for this distribution date, and add blank thaalis to the beginning of the list below"
                 type="info"
                 style={{ marginBottom: "1rem" }}
               />
@@ -362,7 +442,7 @@ const CreateLabels = () => {
             {uniqueItems.length > 0 &&
               uniqueItems.map((item, index) => {
                 return (
-                  <div key={item.itemMetadata.Item}>
+                  <div key={item.itemMetadata.Item} style={{}}>
                     <div style={{ padding: "5px" }}>
                       Original: {item.itemMetadata.Item}
                     </div>
@@ -392,6 +472,7 @@ const CreateLabels = () => {
                                   )
                                 }
                               />
+                              {/* Only display the dropdown for the 2nd-Nth subitems */}
                               {splitIndex !== 0 && (
                                 <>
                                   <Select
@@ -435,6 +516,50 @@ const CreateLabels = () => {
                   </div>
                 )
               })}
+
+            {uniqueItems.length > 0 && (
+              <>
+                <Button onClick={handleAddSalawaatThaali}>
+                  Add Other/Salawaat Thaali
+                </Button>
+                {salawaatThaalis.length > 0 &&
+                  salawaatThaalis.map((item, index) => {
+                    return (
+                      <Input.Group
+                        compact
+                        key={item.key}
+                        style={{ display: "flex", paddingTop: "10px" }}
+                      >
+                        <Input
+                          value={item.name}
+                          onChange={e =>
+                            handleChangeSalawaatThaali(index, e.target.value)
+                          }
+                        />
+                        <Button
+                          danger
+                          onClick={() => handleDeleteSalawaatThaali(index)}
+                        >
+                          <DeleteOutlined />
+                        </Button>
+                      </Input.Group>
+                    )
+                  })}
+                {salawaatThaalis.length > 0 && (
+                  <Checkbox
+                    style={{ paddingTop: "10px" }}
+                    checked={shouldOnlyPrintSalawaatThaalis}
+                    onChange={e =>
+                      setShouldOnlyPrintSalawaatThaalis(e.target.checked)
+                    }
+                  >
+                    Only Print Salawaat Thaalis
+                  </Checkbox>
+                )}
+                <Divider />
+              </>
+            )}
+
             {uniqueItems.length > 0 && (
               <div>
                 <InputNumber

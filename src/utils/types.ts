@@ -32,6 +32,10 @@ export interface SplitItem {
 
 export interface UniqueItem {
   itemMetadata: SingleImportedThaaliSelection
-  isSplit: boolean
   splitArray: SplitItem[]
+}
+
+export interface SalawaatThaali {
+  key: string
+  name: string
 }
