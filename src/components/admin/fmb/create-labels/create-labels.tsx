@@ -199,7 +199,7 @@ const CreateLabels = () => {
         reviewedItems.push(item.Item)
       }
     }
-    // sort unique items by itemmetadata date
+    // sort unique items by itemMetadata date
     uniqueItems.sort((a, b) => {
       return moment(a.itemMetadata["Date"]).diff(moment(b.itemMetadata["Date"]))
     })
@@ -318,17 +318,6 @@ const CreateLabels = () => {
       firstBy(sortByDate).thenBy("Item").thenBy("Size").thenBy("Code")
     )
     return pdfData
-  }
-
-  const shuffle = array => {
-    for (var i = array.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1))
-      var temp = array[i]
-      array[i] = array[j]
-      array[j] = temp
-    }
-
-    return array
   }
 
   const buildPDFData = () => {
