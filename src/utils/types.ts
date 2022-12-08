@@ -2,7 +2,7 @@ export interface SingleImportedThaaliSelection {
   Week: string
   Distribution: string
   "Distribution Day": string
-  Date: string
+  Date: Date
   Hijri: number
   Code: string
   Size: ThaaliTypes

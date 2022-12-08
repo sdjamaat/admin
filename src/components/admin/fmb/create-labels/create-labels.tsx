@@ -23,6 +23,7 @@ import {
   ThaaliTypes,
   SalawaatThaali,
 } from "../../../../utils/types"
+import { firstBy } from "thenby"
 import useDebounce from "../../../../custom-hooks/useDebounce"
 import moment from "moment"
 
@@ -198,8 +199,11 @@ const CreateLabels = () => {
         reviewedItems.push(item.Item)
       }
     }
+    // sort unique items by itemmetadata date
+    uniqueItems.sort((a, b) => {
+      return moment(a.itemMetadata["Date"]).diff(moment(b.itemMetadata["Date"]))
+    })
     setUniqueItems(uniqueItems)
-    console.log(uniqueCodes)
     setUniqueCodes(uniqueCodes)
     setSalawaatThaalis([])
   }
@@ -278,7 +282,7 @@ const CreateLabels = () => {
     Code: "",
     Week: "",
     "Distribution Day": "",
-    Date: "",
+    Date: new Date(),
     Hijri: 0,
     Mohalla: "",
     HalfEquiv: 0,
@@ -287,11 +291,12 @@ const CreateLabels = () => {
     "Original Size": "",
   }
 
-  const addBlankThaaliSelection = (): SingleImportedThaaliSelection[] => {
-    let pdfData: SingleImportedThaaliSelection[] = []
+  const addBlankThaaliSelection = (
+    pdfData: SingleImportedThaaliSelection[]
+  ): SingleImportedThaaliSelection[] => {
     if (numStartingBlanks && numStartingBlanks > 0) {
       for (let i = 0; i < numStartingBlanks; i++) {
-        pdfData.push({
+        pdfData.unshift({
           ...emptyThaaliSelection,
         })
       }
@@ -299,12 +304,35 @@ const CreateLabels = () => {
     return pdfData
   }
 
+  const sortPDFLabels = (pdfData: SingleImportedThaaliSelection[]) => {
+    // function to sort the pdf labels by date (original calendar date not distribution date)
+    const sortByDate = (
+      a: SingleImportedThaaliSelection,
+      b: SingleImportedThaaliSelection
+    ) => {
+      return moment(a["Date"]).diff(moment(b["Date"]))
+    }
+
+    // sort by date, then by item name, then by size (F,H,Q,N), then by code
+    pdfData.sort(
+      firstBy(sortByDate).thenBy("Item").thenBy("Size").thenBy("Code")
+    )
+    return pdfData
+  }
+
+  const shuffle = array => {
+    for (var i = array.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1))
+      var temp = array[i]
+      array[i] = array[j]
+      array[j] = temp
+    }
+
+    return array
+  }
+
   const buildPDFData = () => {
     let pdfData: SingleImportedThaaliSelection[] = []
-
-    // start by checking for number of starting blanks
-    // if there are any blanks then we need to add them to the pdf data
-    pdfData = addBlankThaaliSelection()
 
     // go through each unique item which is a combination of split items,
     // for each split item determine if we need to filter it by size or not
@@ -359,6 +387,13 @@ const CreateLabels = () => {
       }
     }
 
+    // sort the pdf data
+    pdfData = sortPDFLabels(pdfData)
+
+    // add in the blank labels here (otherwise will get affected by sorting function)
+    pdfData = addBlankThaaliSelection(pdfData)
+
+    // set to state
     setPdfData(pdfData)
   }
 
@@ -394,7 +429,7 @@ const CreateLabels = () => {
           <Popover
             placement="topRight"
             content={
-              'Include sheet with the headers (case-sensitive): "Item", "Distribution", "Size", "Family", "Code" '
+              'Include sheet with the headers (case-sensitive): "Item", "Distribution", "Date", "Size", "Family", "Code"'
             }
           >
             <Button type="dashed">Import Label Data from Excel Sheet</Button>
@@ -434,7 +469,7 @@ const CreateLabels = () => {
             <Divider />
             {uniqueItems.length > 0 && (
               <Alert
-                message="You can change the item names, split items into multiple items, and choose what thaali sizes to apply split items towards, add additional thaalis which will only be applied to the SET of thaali takers for this distribution date, and add blank thaalis to the beginning of the list below"
+                message="Change the item names, split items into multiple items, add salawaat thaalis, and add blank labels below"
                 type="info"
                 style={{ marginBottom: "1rem" }}
               />
