@@ -402,6 +402,13 @@ const CreateLabels = () => {
     shouldOnlyPrintSalawaatThaalis,
   ])
 
+  // when we delete the last salawaat thaali, we should uncheck the checkbox
+  React.useEffect(() => {
+    if (salawaatThaalis.length === 0 && shouldOnlyPrintSalawaatThaalis) {
+      setShouldOnlyPrintSalawaatThaalis(false)
+    }
+  }, [salawaatThaalis])
+
   return (
     <CreateLabelsWrapper>
       <Card
