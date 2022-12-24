@@ -11,6 +11,8 @@ import {
   Alert,
   InputNumber,
   Checkbox,
+  Switch,
+  Form,
 } from "antd"
 import { DeleteOutlined, CheckCircleOutlined } from "@ant-design/icons"
 import styled from "styled-components"
@@ -86,6 +88,9 @@ const CreateLabels = () => {
   const [numStartingBlanks, setNumStartingBlanks] = React.useState<
     number | null
   >(0)
+  const [toggleBlackAndWhite, setToggleBlackAndWhite] = React.useState<boolean>(
+    false
+  )
   const debouncedPDFDataValue = useDebounce(pdfData, 1000)
 
   const onDropdownSelectChange = (value: string) => {
@@ -592,21 +597,43 @@ const CreateLabels = () => {
             )}
 
             {uniqueItems.length > 0 && (
-              <div>
-                <InputNumber
-                  addonBefore="# Starting Blanks"
-                  min={0}
-                  max={30}
-                  defaultValue={0}
-                  value={numStartingBlanks}
-                  onChange={value => setNumStartingBlanks(value)}
-                />
+              <>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    marginBottom: "-2rem",
+                    paddingBottom: 0,
+                  }}
+                >
+                  <InputNumber
+                    addonBefore="# Starting Blanks"
+                    min={0}
+                    max={30}
+                    defaultValue={0}
+                    value={numStartingBlanks}
+                    onChange={value => setNumStartingBlanks(value)}
+                  />
+
+                  <Form.Item label="Black & White Labels">
+                    <Switch
+                      checked={toggleBlackAndWhite}
+                      onChange={() =>
+                        setToggleBlackAndWhite(!toggleBlackAndWhite)
+                      }
+                    />
+                  </Form.Item>
+                </div>
                 <Divider />
-              </div>
+              </>
             )}
 
             {currDistributionDateData && distributionDate && (
-              <LabelPDF data={debouncedPDFDataValue} />
+              <LabelPDF
+                data={debouncedPDFDataValue}
+                isBlackAndWhite={toggleBlackAndWhite}
+              />
             )}
           </div>
         )}

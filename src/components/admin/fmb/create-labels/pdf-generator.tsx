@@ -80,9 +80,13 @@ const getFormattedItemName = (item: string) => {
 
 interface PropsAllLabelsDocument {
   data: SingleImportedThaaliSelection[]
+  isBlackAndWhite: boolean
 }
 
-const AllLabelsDocument = ({ data }: PropsAllLabelsDocument) => {
+const AllLabelsDocument = ({
+  data,
+  isBlackAndWhite,
+}: PropsAllLabelsDocument) => {
   return (
     <Document>
       <Page
@@ -93,7 +97,7 @@ const AllLabelsDocument = ({ data }: PropsAllLabelsDocument) => {
         }}
       >
         {data.map((item, index) => {
-          const color = getColorForCode(item)
+          const color = isBlackAndWhite ? "black" : getColorForCode(item)
           return (
             <View key={index} style={styles.label} wrap={false}>
               <div style={{ justifyContent: "space-between" }}>
@@ -123,12 +127,14 @@ const AllLabelsDocument = ({ data }: PropsAllLabelsDocument) => {
   )
 }
 
-const LabelPDF = ({ data }) => {
+const LabelPDF = ({ data, isBlackAndWhite }) => {
   return (
     <div style={{ marginTop: "15px" }}>
       <div>
         <PDFDownloadLink
-          document={<AllLabelsDocument data={data} />}
+          document={
+            <AllLabelsDocument data={data} isBlackAndWhite={isBlackAndWhite} />
+          }
           fileName="labels.pdf"
         >
           {({ blob, url, loading, error }) =>
@@ -141,7 +147,7 @@ const LabelPDF = ({ data }) => {
         </PDFDownloadLink>
       </div>
       <PDFViewer style={{ height: "100vh", width: "100%", marginTop: "10px" }}>
-        <AllLabelsDocument data={data} />
+        <AllLabelsDocument data={data} isBlackAndWhite={isBlackAndWhite} />
       </PDFViewer>
     </div>
   )
