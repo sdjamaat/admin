@@ -32,22 +32,22 @@ import moment from "moment"
 const { Option } = Select
 const { Text } = Typography
 
-// const SELECTIONTYPE = {
-//   "Week": "2022-09-26T07:00:00.000Z",
-//   "Distribution": "2022-09-26T07:00:00.000Z",
-//   "Distribution Day": "2022-09-26T07:00:00.000Z",
-//   "Date": "2022-09-26T07:00:00.000Z",
-//   "Hijri": 1,
-//   "Code": "SR-BC",
-//   "Size": "Quarter",
-//   "Family": "Channiwala Family (Burhan)",
-//   "Item": "Achari Chicken",
-//   "Mohalla": "SR",
-//   "HalfEquiv": 0.5,
-//   "Chef": "Humaira ben",
-//   "ItemComplex": "Achari Chicken - Humaira ben",
-//   "Original Size": "Quarter"
-// }
+type SelectionType = {
+  Week: string
+  Distribution: string
+  "Distribution Day": string
+  Date: string
+  Hijri: number
+  Code: string
+  Size: string
+  Family: string
+  Item: string
+  Mohalla: string
+  HalfEquiv: number
+  Chef: string
+  ItemComplex: string
+  "Original Size": string
+}
 
 const DateStringOptions = {
   weekday: "long",

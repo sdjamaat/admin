@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     // borderRadius: "5px",
     display: "flex",
     flexDirection: "row",
-    gap: "10px",
+    columnGap: "0px",
     fontSize: "12px",
     padding: "5px",
   },
@@ -66,15 +66,6 @@ const getColorForCode = (item: SingleImportedThaaliSelection) => {
     }
   } else {
     return "#000000"
-  }
-}
-
-const getFormattedItemName = (item: string) => {
-  // limits item length to 12 characters
-  if (item.length > 12) {
-    return item.substring(0, 12) + "..."
-  } else {
-    return item
   }
 }
 
@@ -112,11 +103,11 @@ const AllLabelsDocument = ({
                 style={{
                   justifyContent: "space-between",
                   overflow: "hidden",
-                  marginLeft: "40px",
+                  marginLeft: "25px",
                 }}
               >
                 <Text>{item.Distribution}</Text>
-                <Text>{getFormattedItemName(item.Item)}</Text>
+                <Text>{item.Item}</Text>
                 <Text>{item.Family.split(" ")[0]}</Text>
               </div>
             </View>
