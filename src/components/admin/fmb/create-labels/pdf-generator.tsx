@@ -9,7 +9,6 @@ import {
   PDFViewer,
   PDFDownloadLink,
 } from "@react-pdf/renderer"
-import moment from "moment"
 import { SingleImportedThaaliSelection } from "../../../../utils/types"
 
 const styles = StyleSheet.create({
@@ -17,7 +16,6 @@ const styles = StyleSheet.create({
     width: "8.5in !important",
     height: "11in !important",
     paddingTop: ".5in",
-    background: "#e8e8e8",
     marginLeft: ".22in",
     display: "flex",
     flexDirection: "row",
@@ -33,7 +31,6 @@ const styles = StyleSheet.create({
     // borderRadius: "5px",
     display: "flex",
     flexDirection: "row",
-    columnGap: "0px",
     fontSize: "12px",
     padding: "5px",
   },
@@ -92,7 +89,9 @@ const AllLabelsDocument = ({
           return (
             <View key={index} style={styles.label} wrap={false}>
               <div style={{ justifyContent: "space-between" }}>
-                <Text style={{ fontSize: "25px" }}>{item.Size.charAt(0)}</Text>
+                <Text style={{ fontSize: "20px" }}>
+                  {item.ContainerOrCountText || item.Size.charAt(0)}
+                </Text>
                 <Text
                   style={{ fontSize: "22px", color: color, fontWeight: "bold" }}
                 >

@@ -12,6 +12,7 @@ export interface SingleImportedThaaliSelection {
   HalfEquiv: number
   Chef: string
   ItemComplex: string
+  ContainerOrCountText: string
   "Original Size": string
 }
 
@@ -24,12 +25,6 @@ export enum ThaaliTypes {
   Empty = "",
 }
 
-export interface SplitItem {
-  key: string
-  name: string
-  sizeAppliedTo: ThaaliTypes
-}
-
 export interface UniqueItem {
   itemMetadata: SingleImportedThaaliSelection
   splitArray: SplitItem[]
@@ -38,4 +33,43 @@ export interface UniqueItem {
 export interface SalawaatThaali {
   key: string
   name: string
+}
+
+// Define the Container sizes
+export enum ContainerSizes {
+  ThirtyTwoOunce = "32oz",
+  SixteenOunce = "16oz",
+  TwelveOunce = "12oz",
+}
+
+export type ContainerType = {
+  ounces: ContainerSizes
+}
+export enum KindOfItem {
+  Container = "container",
+  Count = "count",
+}
+
+// Define the ItemSettings type for a specific size category
+export type SingleSizeItemSetting = {
+  containers: ContainerType[]
+  count: number | null // count will be null if container type is selected
+}
+
+// Define a new interface for Item settings that includes the type of the item
+export interface ItemSettings {
+  type: KindOfItem
+  settings: {
+    Full: SingleSizeItemSetting
+    Half: SingleSizeItemSetting
+    Quarter: SingleSizeItemSetting
+  }
+}
+
+// Update the SplitItem interface to use ItemSettingsWithType
+export interface SplitItem {
+  key: string
+  name: string
+  sizeAppliedTo: ThaaliTypes
+  itemSettings: ItemSettings // Use the new interface here
 }

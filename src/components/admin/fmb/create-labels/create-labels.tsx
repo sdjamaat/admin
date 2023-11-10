@@ -7,7 +7,6 @@ import {
   Select,
   Divider,
   Input,
-  Typography,
   Alert,
   InputNumber,
   Checkbox,
@@ -24,13 +23,17 @@ import {
   UniqueItem,
   ThaaliTypes,
   SalawaatThaali,
+  SplitItem,
+  KindOfItem,
+  ItemSettings,
 } from "../../../../utils/types"
 import { firstBy } from "thenby"
 import useDebounce from "../../../../custom-hooks/useDebounce"
 import moment from "moment"
+import ItemSettingsModal from "./item-settings"
+import { defaultItemSettings } from "../../../../utils/defaults"
 
 const { Option } = Select
-const { Text } = Typography
 
 type SelectionType = {
   Week: string
@@ -92,6 +95,33 @@ const CreateLabels = () => {
     false
   )
   const debouncedPDFDataValue = useDebounce(pdfData, 1000)
+  const [isSettingsModalVisible, setIsSettingsModalVisible] = React.useState(
+    false
+  )
+
+  const [
+    currentItemForSettingsModal,
+    setCurrentItemForSettingsModal,
+  ] = React.useState<UniqueItem | null>(null)
+  const [
+    currentItemIndexForSettingsModal,
+    setCurrentItemIndexForSettingsModal,
+  ] = React.useState<number>(0)
+  const [
+    currentSplitItemIndexForSettingsModal,
+    setCurrentSplitItemIndexForSettingsModal,
+  ] = React.useState<number>(0)
+
+  const handleOpenSettings = (
+    item: UniqueItem,
+    itemIndex: number,
+    splitItemIndex: number
+  ) => {
+    setCurrentItemForSettingsModal(item)
+    setCurrentItemIndexForSettingsModal(itemIndex)
+    setCurrentSplitItemIndexForSettingsModal(splitItemIndex)
+    setIsSettingsModalVisible(true)
+  }
 
   const onDropdownSelectChange = (value: string) => {
     const newSelectionData =
@@ -197,6 +227,7 @@ const CreateLabels = () => {
               name: item.Item,
               sizeAppliedTo: ThaaliTypes.None,
               key: Math.random().toString(36),
+              itemSettings: { ...defaultItemSettings },
             },
           ],
         }
@@ -222,8 +253,9 @@ const CreateLabels = () => {
       ...splitArray,
       {
         key: Math.random().toString(36),
-        name: "",
+        name: `Split Item ${splitArray.length}`,
         sizeAppliedTo: ThaaliTypes.None,
+        itemSettings: { ...defaultItemSettings },
       },
     ]
     setUniqueItems(newUniqueItems)
@@ -293,6 +325,7 @@ const CreateLabels = () => {
     HalfEquiv: 0,
     Chef: "",
     ItemComplex: "",
+    ContainerOrCountText: "",
     "Original Size": "",
   }
 
@@ -325,43 +358,77 @@ const CreateLabels = () => {
     return pdfData
   }
 
+  const pushPdfEntry = (
+    pdfData: SingleImportedThaaliSelection[],
+    distributionDataItem: SingleImportedThaaliSelection,
+    splitItem: SplitItem,
+    label: string
+  ) => {
+    pdfData.push({
+      ...distributionDataItem,
+      Item: splitItem.name,
+      ContainerOrCountText: label,
+    })
+  }
+
+  const addEntriesForSize = (
+    pdfData: SingleImportedThaaliSelection[],
+    distributionDataItem: SingleImportedThaaliSelection,
+    splitItem: SplitItem,
+    size: ThaaliTypes | string
+  ) => {
+    const settings = splitItem.itemSettings
+    const sizeChar = size.charAt(0).toUpperCase()
+
+    if (settings.type === KindOfItem.Container) {
+      settings.settings[size].containers.forEach((container, index) => {
+        const containerLabel = `${sizeChar} ${index + 1}/${
+          settings.settings[size].containers.length
+        } ${container.ounces}`
+        pushPdfEntry(pdfData, distributionDataItem, splitItem, containerLabel)
+      })
+    } else if (settings.type === KindOfItem.Count) {
+      const count = settings.settings[size].count || 0
+      for (let i = 0; i < count; i++) {
+        const countLabel = `${sizeChar} ${i + 1}/${count} Ct.`
+        pushPdfEntry(pdfData, distributionDataItem, splitItem, countLabel)
+      }
+    }
+  }
+
   const buildPDFData = () => {
     let pdfData: SingleImportedThaaliSelection[] = []
 
-    // go through each unique item which is a combination of split items,
-    // for each split item determine if we need to filter it by size or not
-    // find matching entries by item name and then fill in the entry
     if (!shouldOnlyPrintSalawaatThaalis) {
-      for (let item of uniqueItems) {
-        for (let splitItem of item.splitArray) {
-          // variable to hold the size filter for the split item
-          const sizeFilterForCurrItems =
-            splitItem.sizeAppliedTo === "None" ? null : splitItem.sizeAppliedTo
-
-          for (let distributionDataItem of currDistributionDateData) {
-            // check if item name matches
+      uniqueItems.forEach(item => {
+        item.splitArray.forEach(splitItem => {
+          currDistributionDateData.forEach(distributionDataItem => {
             if (distributionDataItem.Item === item.itemMetadata.Item) {
-              // if there's a size filter then only push if the size matches
-              // if we're supposed to apply this to only FULL thaalis then only push if the size is FULL
-              if (sizeFilterForCurrItems !== null) {
-                if (distributionDataItem.Size === sizeFilterForCurrItems) {
-                  pdfData.push({
-                    ...distributionDataItem,
-                    Item: splitItem.name,
-                  })
-                }
+              const sizeFilter =
+                splitItem.sizeAppliedTo === "None"
+                  ? null
+                  : splitItem.sizeAppliedTo
+              if (sizeFilter) {
+                addEntriesForSize(
+                  pdfData,
+                  distributionDataItem,
+                  splitItem,
+                  sizeFilter
+                )
               } else {
-                pdfData.push({
-                  ...distributionDataItem,
-                  Item: splitItem.name,
+                ;["Full", "Half", "Quarter"].forEach(size => {
+                  addEntriesForSize(
+                    pdfData,
+                    distributionDataItem,
+                    splitItem,
+                    size
+                  )
                 })
               }
-            } else {
-              continue
             }
-          }
-        }
-      }
+          })
+        })
+      })
     }
 
     // add in the salawaat thaalis
@@ -390,6 +457,53 @@ const CreateLabels = () => {
     // set to state
     setPdfData(pdfData)
   }
+
+  const updateItemSettings = (
+    itemIndex: number,
+    splitItemIndex: number,
+    newSettings: ItemSettings
+  ): void => {
+    setUniqueItems(prevUniqueItems => {
+      const updatedUniqueItems = [...prevUniqueItems]
+      const updatedSplitItem = {
+        ...updatedUniqueItems[itemIndex].splitArray[splitItemIndex],
+        itemSettings: newSettings,
+      }
+      updatedUniqueItems[itemIndex].splitArray[
+        splitItemIndex
+      ] = updatedSplitItem
+      return updatedUniqueItems
+    })
+  }
+
+  const handleItemTypeChangeForSettings = (
+    itemIndex: number,
+    splitItemIndex: number,
+    newType: KindOfItem
+  ) => {
+    setUniqueItems(prevItems => {
+      const updatedItems = [...prevItems]
+      updatedItems[itemIndex].splitArray[splitItemIndex].itemSettings = {
+        ...defaultItemSettings,
+        type: newType,
+      }
+      return updatedItems
+    })
+  }
+
+  const selectBefore = (itemIndex: number, splitItemIndex: number) => (
+    <Select
+      value={
+        uniqueItems[itemIndex].splitArray[splitItemIndex].itemSettings.type
+      }
+      onChange={value =>
+        handleItemTypeChangeForSettings(itemIndex, splitItemIndex, value)
+      }
+    >
+      <Option value={KindOfItem.Container}>Container</Option>
+      <Option value={KindOfItem.Count}>Count</Option>
+    </Select>
+  )
 
   React.useEffect(() => {
     setCurrDistributionDateData([])
@@ -499,6 +613,7 @@ const CreateLabels = () => {
                               style={{ display: "flex" }}
                             >
                               <Input
+                                addonBefore={selectBefore(index, splitIndex)}
                                 value={splitItem.name}
                                 onChange={e =>
                                   handleChangeSplitItem(
@@ -530,6 +645,17 @@ const CreateLabels = () => {
                                     </Option>
                                   </Select>
                                   <Button
+                                    onClick={() =>
+                                      handleOpenSettings(
+                                        item,
+                                        index,
+                                        splitIndex
+                                      )
+                                    }
+                                  >
+                                    Settings
+                                  </Button>
+                                  <Button
                                     danger
                                     onClick={() =>
                                       handleDeleteSplitItem(index, splitIndex)
@@ -547,11 +673,27 @@ const CreateLabels = () => {
                       <Button onClick={() => handleSplit(index)}>
                         Add Subitem
                       </Button>
+                      <Button
+                        onClick={() => handleOpenSettings(item, index, 0)}
+                      >
+                        Settings
+                      </Button>
                     </div>
                     <Divider />
                   </div>
                 )
               })}
+
+            {isSettingsModalVisible && (
+              <ItemSettingsModal
+                visible={isSettingsModalVisible}
+                uniqueItem={currentItemForSettingsModal}
+                itemIndex={currentItemIndexForSettingsModal}
+                splitItemIndex={currentSplitItemIndexForSettingsModal}
+                onClose={() => setIsSettingsModalVisible(false)}
+                onSave={updateItemSettings}
+              />
+            )}
 
             {uniqueItems.length > 0 && (
               <>
