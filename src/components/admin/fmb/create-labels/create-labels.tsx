@@ -370,8 +370,8 @@ const CreateLabels = () => {
             getOuncesNumber(b.CountainerOuncesNumber) -
             getOuncesNumber(a.CountainerOuncesNumber)
         ) // Sorting in descending order
-        .thenBy("Code")
         .thenBy("Size")
+        .thenBy("Code")
     )
 
     return pdfData
