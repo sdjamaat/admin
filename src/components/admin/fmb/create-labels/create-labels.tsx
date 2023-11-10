@@ -26,6 +26,7 @@ import {
   SplitItem,
   KindOfItem,
   ItemSettings,
+  ContainerType,
 } from "../../../../utils/types"
 import { firstBy } from "thenby"
 import useDebounce from "../../../../custom-hooks/useDebounce"
@@ -326,6 +327,7 @@ const CreateLabels = () => {
     Chef: "",
     ItemComplex: "",
     ContainerOrCountText: "",
+    CountainerOuncesNumber: "0oz",
     "Original Size": "",
   }
 
@@ -341,9 +343,8 @@ const CreateLabels = () => {
     }
     return pdfData
   }
-
-  const sortPDFLabels = (pdfData: SingleImportedThaaliSelection[]) => {
-    // function to sort the pdf labels by date (original calendar date not distribution date)
+  const sortPDFLabels = pdfData => {
+    // Function to sort the pdf labels by date (original calendar date not distribution date)
     const sortByDate = (
       a: SingleImportedThaaliSelection,
       b: SingleImportedThaaliSelection
@@ -351,10 +352,28 @@ const CreateLabels = () => {
       return moment(a["Date"]).diff(moment(b["Date"]))
     }
 
-    // sort by date, then by item name, then by size (F,H,Q,N), then by code
+    // Helper function to extract numerical value from the string like '32oz'
+    const getOuncesNumber = (ouncesString: string) => {
+      return Number(ouncesString.replace(/[^0-9.]/g, ""))
+    }
+
+    // Sort by date, then by item name, then by size (F,H,Q,N), then by CountainerOuncesNumber in descending order, then by code
     pdfData.sort(
-      firstBy(sortByDate).thenBy("Item").thenBy("Size").thenBy("Code")
+      firstBy(sortByDate)
+        .thenBy("Item")
+
+        .thenBy(
+          (
+            a: SingleImportedThaaliSelection,
+            b: SingleImportedThaaliSelection
+          ) =>
+            getOuncesNumber(b.CountainerOuncesNumber) -
+            getOuncesNumber(a.CountainerOuncesNumber)
+        ) // Sorting in descending order
+        .thenBy("Code")
+        .thenBy("Size")
     )
+
     return pdfData
   }
 
@@ -362,12 +381,14 @@ const CreateLabels = () => {
     pdfData: SingleImportedThaaliSelection[],
     distributionDataItem: SingleImportedThaaliSelection,
     splitItem: SplitItem,
-    label: string
+    label: string,
+    ouncesNum?: string
   ) => {
     pdfData.push({
       ...distributionDataItem,
       Item: splitItem.name,
       ContainerOrCountText: label,
+      CountainerOuncesNumber: ouncesNum || "0oz",
     })
   }
 
@@ -383,20 +404,32 @@ const CreateLabels = () => {
       splitItem.itemSettings.hasMultipleLabelsForCountType
 
     if (settings.type === KindOfItem.Container) {
-      settings.settings[size].containers.forEach((container, index) => {
-        const containerLabel = `${container.ounces} ${index + 1}/${
-          settings.settings[size].containers.length
-        } ${sizeChar}`
-        pushPdfEntry(pdfData, distributionDataItem, splitItem, containerLabel)
-      })
+      const isSingleContainer = settings.settings[size].containers.length === 1
+      settings.settings[size].containers.forEach(
+        (container: ContainerType, index: number) => {
+          const containerLabel = isSingleContainer
+            ? `${container.ounces} ${sizeChar}`
+            : `${container.ounces} ${index + 1}/${
+                settings.settings[size].containers.length
+              } ${sizeChar}`
+          pushPdfEntry(
+            pdfData,
+            distributionDataItem,
+            splitItem,
+            containerLabel,
+            container.ounces
+          )
+        }
+      )
     } else if (settings.type === KindOfItem.Count) {
       const count = hasMultipleLabelsForCount
         ? settings.settings[size].count
         : 1
       for (let i = 0; i < count; i++) {
+        const countNum = settings.settings[size].count
         const countLabel = hasMultipleLabelsForCount
           ? `${i + 1}/${count} Ct. ${sizeChar}`
-          : `${settings.settings[size].count} Ct. ${sizeChar}`
+          : `${countNum} Ct. ${sizeChar}`
         pushPdfEntry(pdfData, distributionDataItem, splitItem, countLabel)
       }
     }
@@ -415,21 +448,21 @@ const CreateLabels = () => {
                   ? null
                   : splitItem.sizeAppliedTo
               if (sizeFilter) {
-                addEntriesForSize(
-                  pdfData,
-                  distributionDataItem,
-                  splitItem,
-                  sizeFilter
-                )
-              } else {
-                ;["Full", "Half", "Quarter"].forEach(size => {
+                if (sizeFilter === distributionDataItem.Size) {
                   addEntriesForSize(
                     pdfData,
                     distributionDataItem,
                     splitItem,
-                    size
+                    distributionDataItem.Size
                   )
-                })
+                }
+              } else {
+                addEntriesForSize(
+                  pdfData,
+                  distributionDataItem,
+                  splitItem,
+                  distributionDataItem.Size
+                )
               }
             }
           })

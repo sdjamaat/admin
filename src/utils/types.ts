@@ -13,6 +13,7 @@ export interface SingleImportedThaaliSelection {
   Chef: string
   ItemComplex: string
   ContainerOrCountText: string
+  CountainerOuncesNumber: string
   "Original Size": string
 }
 
