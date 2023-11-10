@@ -10,7 +10,6 @@ import {
   PDFDownloadLink,
 } from "@react-pdf/renderer"
 import { SingleImportedThaaliSelection } from "../../../../utils/types"
-
 const styles = StyleSheet.create({
   body: {
     width: "8.5in !important",
@@ -27,12 +26,42 @@ const styles = StyleSheet.create({
     marginRight: ".13in",
     textAlign: "center",
     overflow: "hidden",
-    // border: "1px dotted black",
-    // borderRadius: "5px",
+    // border: "1px dotted black", // dotted border
     display: "flex",
     flexDirection: "row",
     fontSize: "12px",
-    padding: "5px",
+  },
+  leftColumn: {
+    width: "50%", // Set the width to 50% of the label for a 2-column layout
+    flexDirection: "column", // Stack items vertically in this column
+    justifyContent: "flex-start", // Align items to the start of the column
+    alignItems: "flex-start", // Align items to the start of the column
+  },
+  rightColumn: {
+    width: "50%", // Set the width to 50% of the label for the second column
+    flexDirection: "column", // Stack items vertically in this column
+    justifyContent: "flex-start", // Align items to the start of the column
+    paddingLeft: "5px", // Add some padding to separate from the left column
+    alignItems: "flex-end", // Right justify the text in this column
+    paddingRight: "5px",
+  },
+  itemName: {
+    fontSize: "12px", // Set font size to 14 as requested
+    fontWeight: "bold",
+    flexWrap: "wrap", // Allow wrapping if the name is too long
+    marginBottom: "5px", // Add margin to ensure spacing from the next element
+    textAlign: "left",
+  },
+  codeAndContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    fontSize: "19px",
+    marginBottom: "5px",
+  },
+  details: {
+    marginTop: "5px",
+    overflow: "hidden",
+    marginBottom: "5px",
   },
 })
 
@@ -77,38 +106,26 @@ const AllLabelsDocument = ({
 }: PropsAllLabelsDocument) => {
   return (
     <Document>
-      <Page
-        // @ts-ignore
-        size="Letter"
-        style={{
-          ...styles.body,
-        }}
-      >
+      <Page size="LETTER" style={styles.body}>
         {data.map((item, index) => {
           const color = isBlackAndWhite ? "black" : getColorForCode(item)
           return (
             <View key={index} style={styles.label} wrap={false}>
-              <div style={{ justifyContent: "space-between" }}>
-                <Text style={{ fontSize: "20px" }}>
+              <View style={styles.leftColumn}>
+                <Text style={styles.codeAndContainer}>
                   {item.ContainerOrCountText || item.Size.charAt(0)}
                 </Text>
+                <Text style={styles.itemName}>{item.Item}</Text>
+              </View>
+              <View style={styles.rightColumn}>
                 <Text
-                  style={{ fontSize: "22px", color: color, fontWeight: "bold" }}
+                  style={{ fontSize: "20px", color: color, fontWeight: "bold" }}
                 >
                   {item.Code}
                 </Text>
-              </div>
-              <div
-                style={{
-                  justifyContent: "space-between",
-                  overflow: "hidden",
-                  marginLeft: "25px",
-                }}
-              >
-                <Text>{item.Distribution}</Text>
-                <Text>{item.Item}</Text>
-                <Text>{item.Family.split(" ")[0]}</Text>
-              </div>
+                <Text style={styles.details}>{item.Distribution}</Text>
+                <Text style={styles.details}>{item.Family.split(" ")[0]}</Text>
+              </View>
             </View>
           )
         })}

@@ -64,6 +64,7 @@ export interface ItemSettings {
     Half: SingleSizeItemSetting
     Quarter: SingleSizeItemSetting
   }
+  hasMultipleLabelsForCountType: boolean
 }
 
 // Update the SplitItem interface to use ItemSettingsWithType

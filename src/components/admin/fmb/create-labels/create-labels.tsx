@@ -379,18 +379,24 @@ const CreateLabels = () => {
   ) => {
     const settings = splitItem.itemSettings
     const sizeChar = size.charAt(0).toUpperCase()
+    const hasMultipleLabelsForCount =
+      splitItem.itemSettings.hasMultipleLabelsForCountType
 
     if (settings.type === KindOfItem.Container) {
       settings.settings[size].containers.forEach((container, index) => {
-        const containerLabel = `${sizeChar} ${index + 1}/${
+        const containerLabel = `${container.ounces} ${index + 1}/${
           settings.settings[size].containers.length
-        } ${container.ounces}`
+        } ${sizeChar}`
         pushPdfEntry(pdfData, distributionDataItem, splitItem, containerLabel)
       })
     } else if (settings.type === KindOfItem.Count) {
-      const count = settings.settings[size].count || 0
+      const count = hasMultipleLabelsForCount
+        ? settings.settings[size].count
+        : 1
       for (let i = 0; i < count; i++) {
-        const countLabel = `${sizeChar} ${i + 1}/${count} Ct.`
+        const countLabel = hasMultipleLabelsForCount
+          ? `${i + 1}/${count} Ct. ${sizeChar}`
+          : `${settings.settings[size].count} Ct. ${sizeChar}`
         pushPdfEntry(pdfData, distributionDataItem, splitItem, countLabel)
       }
     }

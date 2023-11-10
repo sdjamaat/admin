@@ -4,11 +4,11 @@ export const defaultItemSettings: ItemSettings = {
   settings: {
     Full: {
       containers: [{ ounces: ContainerSizes.ThirtyTwoOunce }],
-      count: 1,
+      count: 4,
     },
     Half: {
       containers: [{ ounces: ContainerSizes.SixteenOunce }],
-      count: 1,
+      count: 2,
     },
     Quarter: {
       containers: [{ ounces: ContainerSizes.TwelveOunce }],
@@ -16,4 +16,5 @@ export const defaultItemSettings: ItemSettings = {
     },
   },
   type: KindOfItem.Container,
+  hasMultipleLabelsForCountType: true,
 }

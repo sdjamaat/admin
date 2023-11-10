@@ -162,6 +162,14 @@ const ItemSettingsModal: React.FC<ItemSettingsModalProps> = ({
     }
   }
 
+  // Handler for changing the multiple labels for count type setting
+  const handleMultipleLabelsChange = (value: boolean) => {
+    setItemSettings(prev => ({
+      ...prev,
+      hasMultipleLabelsForCountType: value,
+    }))
+  }
+
   const handleSave = () => {
     if (uniqueItem !== null) {
       onSave(itemIndex, splitItemIndex, itemSettings)
@@ -196,8 +204,7 @@ const ItemSettingsModal: React.FC<ItemSettingsModalProps> = ({
     const settings = uniqueItem
       ? uniqueItem.splitArray[splitItemIndex].itemSettings
       : {
-          type: KindOfItem.Container,
-          settings: defaultItemSettings.settings,
+          ...defaultItemSettings,
         }
     setOriginalSettings(settings)
     setItemSettings(settings)
@@ -216,7 +223,7 @@ const ItemSettingsModal: React.FC<ItemSettingsModalProps> = ({
     >
       <Row style={{ marginBottom: 16 }}>
         {" "}
-        <Col span={20}>
+        <Col span={18}>
           <Tabs>
             {([...tabsArr] as const).map(size => (
               <TabPane tab={size} key={size}>
@@ -288,7 +295,7 @@ const ItemSettingsModal: React.FC<ItemSettingsModalProps> = ({
             ))}
           </Tabs>
         </Col>
-        <Col span={4} style={{ textAlign: "center" }}>
+        <Col span={6} style={{ textAlign: "center" }}>
           <Select
             value={itemSettings.type}
             style={{ width: "100%" }}
@@ -297,6 +304,16 @@ const ItemSettingsModal: React.FC<ItemSettingsModalProps> = ({
             <Option value={KindOfItem.Container}>Container</Option>
             <Option value={KindOfItem.Count}>Count</Option>
           </Select>
+          {itemSettings.type === KindOfItem.Count && (
+            <Select
+              defaultValue={itemSettings.hasMultipleLabelsForCountType}
+              style={{ width: "100%", marginTop: "16px" }}
+              onChange={handleMultipleLabelsChange}
+            >
+              <Option value={true}>Multiple Labels</Option>
+              <Option value={false}>Single Label</Option>
+            </Select>
+          )}
         </Col>
       </Row>
     </Modal>
