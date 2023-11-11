@@ -51,12 +51,14 @@ const styles = StyleSheet.create({
     flexWrap: "wrap", // Allow wrapping if the name is too long
     marginBottom: "5px", // Add margin to ensure spacing from the next element
     textAlign: "left",
+    paddingLeft: "3px",
   },
   codeAndContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     fontSize: "19px",
     marginBottom: "5px",
+    paddingLeft: "3px",
   },
   details: {
     marginTop: "5px",
