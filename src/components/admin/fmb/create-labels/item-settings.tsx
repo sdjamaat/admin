@@ -256,13 +256,19 @@ const ItemSettingsModal: React.FC<ItemSettingsModalProps> = ({
                                 }
                               >
                                 <Option value={ContainerSizes.ThirtyTwoOunce}>
-                                  32oz
+                                  {ContainerSizes.ThirtyTwoOunce}
+                                </Option>
+                                <Option value={ContainerSizes.TwentyFourOunce}>
+                                  {ContainerSizes.TwentyFourOunce}
                                 </Option>
                                 <Option value={ContainerSizes.SixteenOunce}>
-                                  16oz
+                                  {ContainerSizes.SixteenOunce}
                                 </Option>
                                 <Option value={ContainerSizes.TwelveOunce}>
-                                  12oz
+                                  {ContainerSizes.TwelveOunce}
+                                </Option>
+                                <Option value={ContainerSizes.EightOunce}>
+                                  {ContainerSizes.EightOunce}
                                 </Option>
                               </Select>
                               {index > 0 && (

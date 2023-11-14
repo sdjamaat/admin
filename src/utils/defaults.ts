@@ -11,7 +11,7 @@ export const defaultItemSettings: ItemSettings = {
       count: 2,
     },
     Quarter: {
-      containers: [{ ounces: ContainerSizes.TwelveOunce }],
+      containers: [{ ounces: ContainerSizes.EightOunce }],
       count: 1,
     },
   },

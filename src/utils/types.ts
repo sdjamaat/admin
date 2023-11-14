@@ -39,8 +39,10 @@ export interface SalawaatThaali {
 // Define the Container sizes
 export enum ContainerSizes {
   ThirtyTwoOunce = "32oz",
+  TwentyFourOunce = "24oz",
   SixteenOunce = "16oz",
   TwelveOunce = "12oz",
+  EightOunce = "8oz",
 }
 
 export type ContainerType = {
