@@ -234,6 +234,7 @@ const ManageEnrollments = () => {
               placeholder="Enter Thaali Size"
               disabled={codeAndThaaliSizeDisabled}
             >
+              <Select.Option value="Grand">Grand</Select.Option>
               <Select.Option value="Full">Full</Select.Option>
               <Select.Option value="Half">Half</Select.Option>
               <Select.Option value="Quarter">Quarter</Select.Option>
