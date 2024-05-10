@@ -677,6 +677,7 @@ const CreateLabels = () => {
                                     }
                                   >
                                     <Option value="None">All Thaalis</Option>
+                                    <Option value="Grand">Grand ONLY</Option>
                                     <Option value="Full">Full ONLY</Option>
                                     <Option value="Half">Half ONLY</Option>
                                     <Option value="Quarter">

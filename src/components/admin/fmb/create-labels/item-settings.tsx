@@ -73,11 +73,11 @@ const ItemSettingsModal: React.FC<ItemSettingsModalProps> = ({
     }))
   }
 
-  const handleAddContainer = (size: "Full" | "Half" | "Quarter") => {
+  const handleAddContainer = (size: ThaaliTypes) => {
     const newContainerSize =
-      size === "Full"
+      size === ThaaliTypes.Full
         ? ContainerSizes.ThirtyTwoOunce
-        : size === "Half"
+        : size === ThaaliTypes.Half
         ? ContainerSizes.SixteenOunce
         : ContainerSizes.TwelveOunce
 
@@ -98,10 +98,7 @@ const ItemSettingsModal: React.FC<ItemSettingsModalProps> = ({
     }
   }
 
-  const handleRemoveContainer = (
-    size: "Full" | "Half" | "Quarter",
-    index: number
-  ) => {
+  const handleRemoveContainer = (size: ThaaliTypes, index: number) => {
     if (itemSettings.type === KindOfItem.Container) {
       setItemSettings(prev => {
         const updatedContainers = prev.settings[size].containers.filter(
@@ -122,7 +119,7 @@ const ItemSettingsModal: React.FC<ItemSettingsModalProps> = ({
   }
 
   const handleContainerOuncesChange = (
-    size: "Full" | "Half" | "Quarter",
+    size: ThaaliTypes,
     index: number,
     value: ContainerSizes
   ) => {
@@ -144,10 +141,7 @@ const ItemSettingsModal: React.FC<ItemSettingsModalProps> = ({
     }
   }
 
-  const handleCountChange = (
-    size: "Full" | "Half" | "Quarter",
-    value: number | null
-  ) => {
+  const handleCountChange = (size: ThaaliTypes, value: number | null) => {
     if (itemSettings.type === KindOfItem.Count) {
       setItemSettings(prev => ({
         ...prev,
@@ -181,18 +175,25 @@ const ItemSettingsModal: React.FC<ItemSettingsModalProps> = ({
     return JSON.stringify(originalSettings) !== JSON.stringify(itemSettings)
   }
 
-  const getTabsArrBasedOnSizeApplied = (): ("Full" | "Half" | "Quarter")[] => {
+  const getTabsArrBasedOnSizeApplied = (): ThaaliTypes[] => {
     const sizeApplied = uniqueItem
       ? uniqueItem.splitArray[splitItemIndex].sizeAppliedTo
       : ThaaliTypes.None
     if (sizeApplied === ThaaliTypes.None) {
-      return ["Full", "Half", "Quarter"]
+      return [
+        ThaaliTypes.Grand,
+        ThaaliTypes.Full,
+        ThaaliTypes.Half,
+        ThaaliTypes.Quarter,
+      ]
+    } else if (sizeApplied === ThaaliTypes.Grand) {
+      return [ThaaliTypes.Grand]
     } else if (sizeApplied === ThaaliTypes.Full) {
-      return ["Full"]
+      return [ThaaliTypes.Full]
     } else if (sizeApplied === ThaaliTypes.Half) {
-      return ["Half"]
+      return [ThaaliTypes.Half]
     } else if (sizeApplied === ThaaliTypes.Quarter) {
-      return ["Quarter"]
+      return [ThaaliTypes.Quarter]
     } else {
       return []
     }

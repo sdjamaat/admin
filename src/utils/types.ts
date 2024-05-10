@@ -18,6 +18,7 @@ export interface SingleImportedThaaliSelection {
 }
 
 export enum ThaaliTypes {
+  Grand = "Grand",
   Full = "Full",
   Half = "Half",
   Quarter = "Quarter",
@@ -63,6 +64,7 @@ export type SingleSizeItemSetting = {
 export interface ItemSettings {
   type: KindOfItem
   settings: {
+    Grand: SingleSizeItemSetting
     Full: SingleSizeItemSetting
     Half: SingleSizeItemSetting
     Quarter: SingleSizeItemSetting
@@ -75,5 +77,5 @@ export interface SplitItem {
   key: string
   name: string
   sizeAppliedTo: ThaaliTypes
-  itemSettings: ItemSettings // Use the new interface here
+  itemSettings: ItemSettings
 }
