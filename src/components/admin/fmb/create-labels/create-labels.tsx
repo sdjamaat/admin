@@ -357,11 +357,26 @@ const CreateLabels = () => {
       return Number(ouncesString.replace(/[^0-9.]/g, ""))
     }
 
-    // Sort by date, then by item name, then by size (F,H,Q,N), then by CountainerOuncesNumber in descending order, then by code
+    // Helper function to get priority for size sorting
+    const getSizePriority = (size: string) => {
+      switch (size) {
+        case "Grand":
+          return 1
+        case "Full":
+          return 2
+        case "Half":
+          return 3
+        case "Quarter":
+          return 4
+        default:
+          return 5
+      }
+    }
+
+    // Sort by date, then by item name, then by custom size order (G,F,H,Q), then by CountainerOuncesNumber in descending order, then by code
     pdfData.sort(
       firstBy(sortByDate)
         .thenBy("Item")
-
         .thenBy(
           (
             a: SingleImportedThaaliSelection,
@@ -369,8 +384,13 @@ const CreateLabels = () => {
           ) =>
             getOuncesNumber(b.CountainerOuncesNumber) -
             getOuncesNumber(a.CountainerOuncesNumber)
-        ) // Sorting in descending order
-        .thenBy("Size")
+        )
+        .thenBy(
+          (
+            a: SingleImportedThaaliSelection,
+            b: SingleImportedThaaliSelection
+          ) => getSizePriority(a.Size) - getSizePriority(b.Size)
+        )
         .thenBy("Code")
     )
 

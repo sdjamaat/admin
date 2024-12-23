@@ -44,6 +44,7 @@ export enum ContainerSizes {
   SixteenOunce = "16oz",
   TwelveOunce = "12oz",
   EightOunce = "8oz",
+  SixOunce = "6oz",
 }
 
 export type ContainerType = {

@@ -271,6 +271,9 @@ const ItemSettingsModal: React.FC<ItemSettingsModalProps> = ({
                                 <Option value={ContainerSizes.EightOunce}>
                                   {ContainerSizes.EightOunce}
                                 </Option>
+                                <Option value={ContainerSizes.SixOunce}>
+                                  {ContainerSizes.SixOunce}
+                                </Option>
                               </Select>
                               {index > 0 && (
                                 <Button
