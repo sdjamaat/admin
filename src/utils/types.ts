@@ -2,7 +2,7 @@ export interface SingleImportedThaaliSelection {
   Week: string
   Distribution: string
   "Distribution Day": string
-  Date: Date
+  Date: string
   Hijri: number
   Code: string
   Size: ThaaliTypes
@@ -45,6 +45,7 @@ export enum ContainerSizes {
   TwelveOunce = "12oz",
   EightOunce = "8oz",
   SixOunce = "6oz",
+  FourOunce = "4oz",
 }
 
 export type ContainerType = {
