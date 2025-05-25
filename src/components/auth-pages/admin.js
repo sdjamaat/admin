@@ -11,6 +11,7 @@ import ManageAccounts from "../admin/users/manage-accounts/manage-accounts"
 import ViewSubmissions from "../admin/fmb/view-submissions/view-submissions"
 import ManageEnrollments from "../admin/fmb/manage-enrollments/manage-enrollments"
 import CreateLabels from "../admin/fmb/create-labels/create-labels"
+import MakeSelections from "../admin/fmb/make-selections/make-selections"
 import ExportUsers from "../admin/users/export-users/export-users"
 import ExportFamilies from "../admin/users/export-families/export-families"
 import CustomMessage from "../custom-message"
@@ -62,6 +63,9 @@ const AdminMenu = ({
             <Menu.Item key="fmb-manage-enrollments">
               Manage Enrollments
             </Menu.Item>
+            <Menu.Item key="fmb-make-selections">
+              Make Selections for Families
+            </Menu.Item>
             <Menu.Item key="fmb-create-labels">Create Labels</Menu.Item>
           </SubMenu>
         )}
@@ -110,6 +114,9 @@ const AdminMenu = ({
                       </Option>
                       <Option value="fmb-manage-enrollments">
                         Manage Enrollments
+                      </Option>
+                      <Option value="fmb-make-selections">
+                        Make Selections for Families
                       </Option>
                       <Option value="fmb-create-labels">Create Labels</Option>
                     </OptGroup>
@@ -231,6 +238,8 @@ const Admin = () => {
         return <ViewSubmissions />
       case "fmb-manage-enrollments":
         return <ManageEnrollments />
+      case "fmb-make-selections":
+        return <MakeSelections />
       case "fmb-create-labels":
         return <CreateLabels />
       case "users-manage-accounts":

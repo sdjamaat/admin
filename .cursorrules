@@ -1,0 +1,90 @@
+# Instructions
+
+During your interaction with the user, if you find anything reusable in this project (e.g. version of a library, model name), especially about a fix to a mistake you made or a correction you received, you should take note in the `Lessons` section in the `.cursorrules` file so you will not make the same mistake again.
+
+You should also use the `.cursorrules` file as a Scratchpad to organize your thoughts. Especially when you receive a new task, you should first review the content of the Scratchpad, clear old different task if necessary, first explain the task, and plan the steps you need to take to complete the task. You can use todo markers to indicate the progress, e.g.
+[X] Task 1
+[ ] Task 2
+
+Also update the progress of the task in the Scratchpad when you finish a subtask.
+Especially when you finished a milestone, it will help to improve your depth of task accomplishment to use the Scratchpad to reflect and plan.
+The goal is to help you maintain a big picture as well as the progress of the task. Always refer to the Scratchpad when you plan the next step.
+
+# Lessons
+
+## User Specified Lessons
+
+- You have a python venv in ./venv. Use it.
+- Include info useful for debugging in the program output.
+- Read the file before you try to edit it.
+- Due to Cursor's limit, when you use `git` and `gh` and need to submit a multiline commit message, first write the message in a file, and then use `git commit -F <filename>` or similar command to commit. And then remove the file. Include "[Cursor] " in the commit message and PR title.
+
+## Tech Stack Understanding
+
+- This is a Gatsby React app with Firebase backend
+- Uses Ant Design for UI components
+- Admin panel is organized with Menu items that map to page keys
+- Thaali sizes: Grand, Full, Half, Quarter
+- Families have: familyid, displayname, fmb.enrolled, fmb.thaaliSize (default max), fmb.code
+- Menus have: items array, status (active/queued/archived), month, year
+- Only one menu can be "active" at a time (accepting submissions)
+
+# Scratchpad
+
+## Current Task: Add Admin Panel Feature for Making Thaali Selections for Users
+
+### Task Description:
+
+Add a new feature in the admin panel where admins can select any family and make thaali selections for a particular menu on their behalf.
+
+### Requirements:
+
+1. New tab called "Make Selections for Users" or similar
+2. Dropdown to select a menu (default to currently active menu)
+3. Dropdown to select a family
+4. For each menu item: dropdown to select thaali size (grand, full, half, quarter)
+5. Universal toggle to set all menu items to a particular thaali size
+6. Display family's default max thaali size informationally (but allow override)
+
+### Progress:
+
+[X] Explore codebase structure and understand current admin panel
+[X] Understand data models for menus, families, and thaali selections
+[X] Create the new tab/page component
+[X] Implement menu selection dropdown
+[X] Implement family selection dropdown  
+[X] Implement per-menu-item thaali size dropdowns
+[X] Implement universal toggle for thaali sizes
+[X] Display family's default max thaali size
+[X] Integrate with backend APIs
+[X] Test the functionality
+
+### Implementation Summary:
+
+Successfully implemented the "Make Selections for Users" feature with the following components:
+
+1. **New Component**: Created `src/components/admin/fmb/make-selections/make-selections.js`
+2. **Admin Panel Integration**: Added new menu item "Make Selections for Users" under Faiz-ul-Mawaid submenu
+3. **Key Features Implemented**:
+
+   - Menu selection dropdown (defaults to currently active menu)
+   - Family selection dropdown with search functionality
+   - Display of family's default max thaali size (informational)
+   - Universal toggle to set all items to same thaali size
+   - Individual item selection dropdowns for each menu item
+   - Proper validation and error handling
+   - Firebase integration for data fetching and submission
+   - Responsive design with Ant Design components
+
+4. **Data Flow**:
+
+   - Fetches menus from `fmb/{year}/menus` collection
+   - Fetches enrolled families from `families` collection
+   - Submits selections to `fmb/{year}/menus/{month}/submissions/{familyid}`
+   - Updates menu submissions array
+
+5. **Testing**: Development server running successfully on port 8000, app responding with 200 status code
+
+### Next Step:
+
+Feature is complete and ready for use. Admin users can now make thaali selections on behalf of families through the new admin panel tab.
