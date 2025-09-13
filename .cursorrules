@@ -28,63 +28,34 @@ The goal is to help you maintain a big picture as well as the progress of the ta
 - Families have: familyid, displayname, fmb.enrolled, fmb.thaaliSize (default max), fmb.code
 - Menus have: items array, status (active/queued/archived), month, year
 - Only one menu can be "active" at a time (accepting submissions)
+- Menu documents have a 'submissions' array that stores family IDs (not display names) of families who have submitted selections
 
 # Scratchpad
 
-## Current Task: Add Admin Panel Feature for Making Thaali Selections for Users
+## Current Task: Fix Delete Submission Bug in View Submissions Tab
 
 ### Task Description:
 
-Add a new feature in the admin panel where admins can select any family and make thaali selections for a particular menu on their behalf.
+Fix the delete functionality in the View Submissions tab where deleting a submission doesn't properly remove the family ID from the menu's submissions array, causing display issues.
 
-### Requirements:
+### Issue:
 
-1. New tab called "Make Selections for Users" or similar
-2. Dropdown to select a menu (default to currently active menu)
-3. Dropdown to select a family
-4. For each menu item: dropdown to select thaali size (grand, full, half, quarter)
-5. Universal toggle to set all menu items to a particular thaali size
-6. Display family's default max thaali size informationally (but allow override)
+When an admin deletes a submission entry:
+1. The submission document is deleted correctly
+2. BUT the family ID is not removed from the menu's submissions array
+3. This creates a bug where the entry appears deleted but still shows up because the submissions array is used to determine which submissions to display
 
-### Progress:
+### Root Cause:
 
-[X] Explore codebase structure and understand current admin panel
-[X] Understand data models for menus, families, and thaali selections
-[X] Create the new tab/page component
-[X] Implement menu selection dropdown
-[X] Implement family selection dropdown  
-[X] Implement per-menu-item thaali size dropdowns
-[X] Implement universal toggle for thaali sizes
-[X] Display family's default max thaali size
-[X] Integrate with backend APIs
-[X] Test the functionality
+1. In `view-submissions.js`, the delete function was trying to remove `submission.familyDisplayName` from the submissions array
+2. The submissions array actually contains family IDs, not display names
+3. Additionally, the `make-selections.js` component was incorrectly adding display names instead of family IDs to the array
 
-### Implementation Summary:
+### Fix Applied:
 
-Successfully implemented the "Make Selections for Users" feature with the following components:
+[X] Fixed `view-submissions.js` line 306: Changed from `submission.familyDisplayName` to `submission.familyid`
+[X] Fixed `make-selections.js` line 305: Changed from `selectedFamily.displayname` to `selectedFamily.familyid`
 
-1. **New Component**: Created `src/components/admin/fmb/make-selections/make-selections.js`
-2. **Admin Panel Integration**: Added new menu item "Make Selections for Users" under Faiz-ul-Mawaid submenu
-3. **Key Features Implemented**:
+### Result:
 
-   - Menu selection dropdown (defaults to currently active menu)
-   - Family selection dropdown with search functionality
-   - Display of family's default max thaali size (informational)
-   - Universal toggle to set all items to same thaali size
-   - Individual item selection dropdowns for each menu item
-   - Proper validation and error handling
-   - Firebase integration for data fetching and submission
-   - Responsive design with Ant Design components
-
-4. **Data Flow**:
-
-   - Fetches menus from `fmb/{year}/menus` collection
-   - Fetches enrolled families from `families` collection
-   - Submits selections to `fmb/{year}/menus/{month}/submissions/{familyid}`
-   - Updates menu submissions array
-
-5. **Testing**: Development server running successfully on port 8000, app responding with 200 status code
-
-### Next Step:
-
-Feature is complete and ready for use. Admin users can now make thaali selections on behalf of families through the new admin panel tab.
+Both the delete functionality and the submission creation now properly handle family IDs in the menu's submissions array, ensuring consistency across the application.
