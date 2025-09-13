@@ -302,7 +302,7 @@ const MakeSelections = () => {
         .doc(selectedMenu.month)
         .update({
           submissions: firebase.firestore.FieldValue.arrayUnion(
-            selectedFamily.displayname
+            selectedFamily.familyid
           ),
         })
 

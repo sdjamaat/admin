@@ -303,7 +303,7 @@ const ViewSubmissions = () => {
         .doc(shortMonthName)
         .update({
           submissions: firebase.firestore.FieldValue.arrayRemove(
-            submission.familyDisplayName
+            submission.familyid
           ),
         })
 
