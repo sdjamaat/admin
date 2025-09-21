@@ -40,7 +40,6 @@ export const newContactFormSubmission = functions.firestore
       cc: [
         submission.email,
         "ibrahim.0814@gmail.com",
-        "murtaza.mister@gmail.com",
         "qsdoctor@gmail.com",
         "saifees@gmail.com",
         "chhatri@gmail.com",
@@ -86,7 +85,6 @@ export const newUserRegistration = functions.firestore
       cc: [
         submission.email,
         "ibrahim.0814@gmail.com",
-        "murtaza.mister@gmail.com",
         "qsdoctor@gmail.com",
         "saifees@gmail.com",
         "chhatri@gmail.com",
