@@ -140,8 +140,7 @@ const LoginWrapper = styled.div`
   }
   .mod-btn {
     width: 100%;
-    padding-top: 0.3rem;
-    padding-bottom: 2.3rem;
+    height: 2.8rem;
     font-size: 1.3rem;
   }
   .submit {

@@ -7,6 +7,7 @@ import { DateProvider } from "./provider/date-context"
 import { AuthProvider } from "./provider/auth-context"
 import "mapbox-gl/dist/mapbox-gl.css"
 import "bootstrap/dist/css/bootstrap.css"
+import "./index.css"
 
 const antdTheme = {
   token: {
