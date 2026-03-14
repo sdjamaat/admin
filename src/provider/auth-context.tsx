@@ -66,8 +66,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (currUser !== null && isLoggedIn) {
+      let unsubscribe: (() => void) | undefined
       try {
-        onSnapshot(doc(db, "admins", currUser.uid), (docSnap) => {
+        unsubscribe = onSnapshot(doc(db, "admins", currUser.uid), (docSnap) => {
           if (docSnap.exists()) {
             const userInfo = docSnap.data()
             if (userInfo.admin === true) {
@@ -88,6 +89,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         })
       } catch {
         signOut()
+      }
+      return () => {
+        if (unsubscribe) unsubscribe()
       }
     }
   }, [])
