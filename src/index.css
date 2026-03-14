@@ -55,3 +55,16 @@ a {
   align-items: center;
   justify-content: center;
 }
+
+/* Bootstrap 4 → 5 compatibility: these classes were renamed */
+.float-left {
+  float: left !important;
+}
+.float-right {
+  float: right !important;
+}
+.float-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
