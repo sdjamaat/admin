@@ -97,6 +97,11 @@ const NavbarWrapper = styled.div`
   .navbar {
     padding-left: 1rem;
     padding-right: 1rem;
+    align-items: center;
+  }
+  .navbar-brand {
+    display: flex;
+    align-items: center;
   }
 `
 
