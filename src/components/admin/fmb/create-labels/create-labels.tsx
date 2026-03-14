@@ -320,7 +320,7 @@ const CreateLabels = () => {
     Code: "",
     Week: "",
     "Distribution Day": "",
-    Date: new Date(),
+    Date: new Date().toISOString(),
     Hijri: 0,
     Mohalla: "",
     HalfEquiv: 0,
