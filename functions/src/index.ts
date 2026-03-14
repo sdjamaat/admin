@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions"
-import * as sgMail from "@sendgrid/mail"
+import sgMail from "@sendgrid/mail"
 import * as admin from "firebase-admin"
 import { ThaaliSubmissionEmailData } from "./types"
 import { myCustomError } from "./logger"
