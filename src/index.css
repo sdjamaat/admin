@@ -24,10 +24,34 @@ a {
   color: #1890ff;
 }
 
-/* Fix Bootstrap CSS conflicting with Ant Design button styles */
+/*
+ * Fix Bootstrap CSS conflicting with Ant Design components.
+ * Bootstrap sets line-height, display, and padding on buttons/inputs
+ * that break Ant Design v5's CSS-in-JS styles.
+ */
+
+/* Ant Design buttons - ensure flexbox centering wins over Bootstrap */
 .ant-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Ant Design inputs/selects - prevent Bootstrap from overriding sizing */
+.ant-input,
+.ant-select,
+.ant-picker {
+  font-size: inherit;
+}
+
+/* Ant Design cards - prevent Bootstrap from overriding card styles */
+.ant-card {
+  font-size: inherit;
+}
+
+/* Bootstrap buttons - ensure text centering */
+.btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
 }

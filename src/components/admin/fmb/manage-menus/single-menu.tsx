@@ -476,8 +476,7 @@ const SingleMenuWrapper = styled.div`
   .btn {
     font-size: 1.1rem;
     width: 100%;
-    padding-bottom: 0.2rem;
-    padding-top: 0.2rem;
+    height: 2.2rem;
   }
 
   .btn-outline-success:hover {
