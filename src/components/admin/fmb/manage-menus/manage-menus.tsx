@@ -7,7 +7,7 @@ import { db } from "../../../../lib/firebase"
 import { doc, updateDoc, deleteDoc, arrayRemove } from "firebase/firestore"
 import CustomMessage from "../../../custom-message"
 import { DateContext } from "../../../../provider/date-context"
-const moment = require("moment")
+import moment from "moment"
 const { confirm } = Modal
 
 const DisplaySortedMenus = ({

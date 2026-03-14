@@ -15,8 +15,8 @@ import { doc, getDoc, getDocs, collection, updateDoc, deleteDoc, arrayRemove } f
 import { DateContext } from "../../../../provider/date-context"
 import { shortMonthToLongMonth } from "../../../../functions/calendar"
 import { cloneDeep } from "lodash"
-const moment = require("moment")
-const xlsx = require("xlsx")
+import moment from "moment"
+import * as xlsx from "xlsx"
 
 const { Option } = Select
 const { Panel } = Collapse

@@ -15,7 +15,7 @@ import { collection, getDocs } from "firebase/firestore"
 import styled from "styled-components"
 import CustomMessage from "../../../../components/custom-message"
 import moment from "moment"
-const xlsx = require("xlsx")
+import * as xlsx from "xlsx"
 
 const ExportUsers = () => {
   const [columns, setColumns] = useState<string[]>([])
