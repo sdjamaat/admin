@@ -174,8 +174,7 @@ const CreateMenuWrapper = styled.div`
   max-width: 1000px;
   margin: auto;
   .next-btn {
-    padding-top: 0.2rem;
-    padding-bottom: 2.2rem;
+    height: 2.5rem;
     font-size: 1.2rem;
     margin-top: 1rem;
   }

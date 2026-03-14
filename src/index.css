@@ -23,3 +23,11 @@ h1, h2, h3, h4, h5, h6 {
 a {
   color: #1890ff;
 }
+
+/* Fix Bootstrap CSS conflicting with Ant Design button styles */
+.ant-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}

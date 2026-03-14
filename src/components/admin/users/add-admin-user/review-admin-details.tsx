@@ -51,8 +51,7 @@ const ReviewDetails = ({ accountDetails, setStep, submitForm }: any) => {
 
 const ReviewDetailsWrapper = styled.div`
   .next-btn {
-    padding-top: 0.2rem;
-    padding-bottom: 2.2rem;
+    height: 2.5rem;
     font-size: 1.2rem;
     margin-top: 1rem;
   }
