@@ -305,6 +305,10 @@ const AdminWrapper = styled.div`
 
   .ant-menu {
     border-inline-end: none !important;
+    background: transparent !important;
+  }
+  .ant-menu-submenu > .ant-menu {
+    background: transparent !important;
   }
 `
 
