@@ -302,6 +302,10 @@ const AdminWrapper = styled.div`
       margin-top: 1.7rem;
     }
   }
+
+  .ant-menu {
+    border-inline-end: none !important;
+  }
 `
 
 export default Admin
