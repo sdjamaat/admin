@@ -146,13 +146,13 @@ const LabelPDF = ({ data, isBlackAndWhite }) => {
           }
           fileName="labels.pdf"
         >
-          {({ blob, url, loading, error }) =>
+          {(({ blob, url, loading, error }: any) =>
             loading ? (
               "Loading document..."
             ) : (
               <Button type="primary">Download PDF</Button>
             )
-          }
+          ) as any}
         </PDFDownloadLink>
       </div>
       <PDFViewer style={{ height: "100vh", width: "100%", marginTop: "10px" }}>

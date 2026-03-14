@@ -1,0 +1,70 @@
+/* Global styles migrated from theme.less */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Cormorant Garamond", sans-serif;
+  font-size: 18px;
+  color: rgba(0, 0, 0, 0.65);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+a {
+  color: #1890ff;
+}
+
+/*
+ * Fix Bootstrap CSS conflicting with Ant Design components.
+ * Bootstrap sets line-height, display, and padding on buttons/inputs
+ * that break Ant Design v5's CSS-in-JS styles.
+ */
+
+/* Ant Design buttons - ensure flexbox centering wins over Bootstrap */
+.ant-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Ant Design inputs/selects - prevent Bootstrap from overriding sizing */
+.ant-input,
+.ant-select,
+.ant-picker {
+  font-size: inherit;
+}
+
+/* Ant Design cards - prevent Bootstrap from overriding card styles */
+.ant-card {
+  font-size: inherit;
+}
+
+/* Bootstrap buttons - ensure text centering */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Bootstrap 4 → 5 compatibility: these classes were renamed */
+.float-left {
+  float: left !important;
+}
+.float-right {
+  float: right !important;
+}
+.float-center {
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+}
