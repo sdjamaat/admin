@@ -10,9 +10,35 @@ jobs:
 
     steps:
       - name: Wait for Netlify deploy
-        uses: probots-io/wait-for-netlify-action@v1
-        with:
-          site_id: "0f75e710-16ce-4ef5-a7b1-a449b640594a"
-          max_timeout: 300
         env:
           NETLIFY_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          SITE_ID: "0f75e710-16ce-4ef5-a7b1-a449b640594a"
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          echo "Waiting for Netlify deploy of $COMMIT_SHA..."
+          for i in $(seq 1 30); do
+            DEPLOY=$(curl -s -H "Authorization: Bearer $NETLIFY_TOKEN" \
+              "https://api.netlify.com/api/v1/sites/$SITE_ID/deploys?per_page=5" \
+              | jq -r ".[] | select(.commit_ref == \"$COMMIT_SHA\")")
+
+            if [ -n "$DEPLOY" ]; then
+              STATE=$(echo "$DEPLOY" | jq -r '.state')
+              echo "Deploy state: $STATE"
+
+              if [ "$STATE" = "ready" ]; then
+                URL=$(echo "$DEPLOY" | jq -r '.ssl_url')
+                echo "Deploy succeeded: $URL"
+                exit 0
+              elif [ "$STATE" = "error" ]; then
+                echo "Deploy failed!"
+                echo "$DEPLOY" | jq '.error_message'
+                exit 1
+              fi
+            else
+              echo "Deploy not found yet... (attempt $i/30)"
+            fi
+
+            sleep 10
+          done
+          echo "Timed out waiting for deploy"
+          exit 1
