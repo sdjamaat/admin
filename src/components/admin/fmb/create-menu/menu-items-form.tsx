@@ -330,67 +330,67 @@ const MenuItemsForm = ({
                         <Input placeholder="Reason for no thaali (optional)" />
                       </Form.Item>
                     )}
-                    <Row>
-                      <Col xs={12} sm={8}>
-                        <div style={{ display: "flex", alignItems: "center", gap: ".4rem" }}>
-                          <Form.Item
-                            name={[field.name, "nothaali"]}
-                            fieldKey={[field.fieldKey, "nothaali"] as any}
-                            valuePropName="checked"
-                            style={{ marginBottom: 0 }}
+                    <Row style={{ alignItems: "center" }}>
+                      <Col xs={4} sm={3}>
+                        <Form.Item
+                          name={[field.name, "nothaali"]}
+                          fieldKey={[field.fieldKey, "nothaali"] as any}
+                          valuePropName="checked"
+                          style={{ marginBottom: 0 }}
+                        >
+                          <Checkbox
+                            onChange={(event: any) =>
+                              handleCheckBox(event, field.name)
+                            }
                           >
-                            <Checkbox
-                              onChange={(event: any) =>
-                                handleCheckBox(event, field.name)
-                              }
-                            >
-                              No Thaali
-                            </Checkbox>
-                          </Form.Item>
-
-                          {!disabledItems.includes(field.name) && (
-                            <Form.Item
-                              noStyle
-                              shouldUpdate={(prev: any, curr: any) =>
-                                prev?.items?.[field.name]?.sizeRestrictionEnabled !==
-                                curr?.items?.[field.name]?.sizeRestrictionEnabled
-                              }
-                            >
-                              {() => (
-                                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                            No Thaali
+                          </Checkbox>
+                        </Form.Item>
+                      </Col>
+                      <Col xs={4} sm={5}>
+                        {!disabledItems.includes(field.name) && (
+                          <Form.Item
+                            noStyle
+                            shouldUpdate={(prev: any, curr: any) =>
+                              prev?.items?.[field.name]?.sizeRestrictionEnabled !==
+                              curr?.items?.[field.name]?.sizeRestrictionEnabled
+                            }
+                          >
+                            {() => (
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                <Form.Item
+                                  name={[field.name, "sizeRestrictionEnabled"]}
+                                  fieldKey={[field.fieldKey, "sizeRestrictionEnabled"] as any}
+                                  valuePropName="checked"
+                                  style={{ marginBottom: 0 }}
+                                >
+                                  <Switch size="small" />
+                                </Form.Item>
+                                <span style={{ fontSize: ".85rem", color: "#666", whiteSpace: "nowrap" }}>
+                                  Limit
+                                </span>
+                                {menuItemsForm.getFieldValue(["items", field.name, "sizeRestrictionEnabled"]) && (
                                   <Form.Item
-                                    name={[field.name, "sizeRestrictionEnabled"]}
-                                    fieldKey={[field.fieldKey, "sizeRestrictionEnabled"] as any}
-                                    valuePropName="checked"
+                                    name={[field.name, "maxSize"]}
+                                    fieldKey={[field.fieldKey, "maxSize"] as any}
+                                    rules={[{ required: true, message: "Required" }]}
                                     style={{ marginBottom: 0 }}
                                   >
-                                    <Switch size="small" />
+                                    <Select size="small" style={{ width: 90 }} placeholder="Max">
+                                      {ALL_SIZES.map((size) => (
+                                        <Select.Option key={size} value={size}>
+                                          {size}
+                                        </Select.Option>
+                                      ))}
+                                    </Select>
                                   </Form.Item>
-                                  {menuItemsForm.getFieldValue(["items", field.name, "sizeRestrictionEnabled"]) ? (
-                                    <Form.Item
-                                      name={[field.name, "maxSize"]}
-                                      fieldKey={[field.fieldKey, "maxSize"] as any}
-                                      rules={[{ required: true, message: "Required" }]}
-                                      style={{ marginBottom: 0 }}
-                                    >
-                                      <Select size="small" style={{ width: 82 }} placeholder="Max">
-                                        {ALL_SIZES.map((size) => (
-                                          <Select.Option key={size} value={size}>
-                                            {size}
-                                          </Select.Option>
-                                        ))}
-                                      </Select>
-                                    </Form.Item>
-                                  ) : (
-                                    <span style={{ fontSize: ".8rem", color: "#999" }}>Limit</span>
-                                  )}
-                                </div>
-                              )}
-                            </Form.Item>
-                          )}
-                        </div>
+                                )}
+                              </div>
+                            )}
+                          </Form.Item>
+                        )}
                       </Col>
-                      <Col xs={12} sm={4}>
+                      <Col xs={4} sm={4}>
                         <Button
                           className="float-right"
                           style={{ width: "100%" }}
