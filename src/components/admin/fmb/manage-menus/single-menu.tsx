@@ -8,7 +8,11 @@ import {
   DatePicker,
   Input,
   Checkbox,
+  Switch,
+  Select,
+  Space,
 } from "antd"
+import { ALL_SIZES } from "../../../../utils/thaali-sizes"
 import { Row, Col, Button } from "react-bootstrap"
 import styled from "styled-components"
 import { shortMonthToLongMonth } from "../../../../functions/calendar"
@@ -202,6 +206,9 @@ const SingleMenu = ({
                             "dddd, MMM Do YYYY"
                           )}
                         </li>
+                        {!item.nothaali && item.sizeRestrictionEnabled && (
+                          <li>Max Size: {item.maxSize}</li>
+                        )}
                       </ul>
                     </Col>
 
@@ -224,6 +231,8 @@ const SingleMenu = ({
                                     date: moment(item.date, "MM-DD-YYYY"),
                                     nothaali: item.nothaali,
                                     reasonNoThaali: item.reasonNoThaali,
+                                    sizeRestrictionEnabled: item.sizeRestrictionEnabled || false,
+                                    maxSize: item.maxSize || null,
                                   })
                                   setCurrentlyEditingMenuItemDetails({
                                     monthName: menu.month,
@@ -251,6 +260,8 @@ const SingleMenu = ({
                                     date: moment(item.date, "MM-DD-YYYY"),
                                     nothaali: item.nothaali,
                                     reasonNoThaali: item.reasonNoThaali,
+                                    sizeRestrictionEnabled: item.sizeRestrictionEnabled || false,
+                                    maxSize: item.maxSize || null,
                                   })
                                   setCurrentlyEditingMenuItemDetails({
                                     monthName: menu.month,
@@ -284,6 +295,8 @@ const SingleMenu = ({
                     date: null,
                     nothaali: null,
                     reasonNoThaali: null,
+                    sizeRestrictionEnabled: false,
+                    maxSize: null,
                   })
                   setCurrentlyEditingMenuItemDetails({
                     monthName: menu.month,
@@ -398,7 +411,7 @@ const SingleMenu = ({
               onChange={(event: any) => {
                 const isNameFieldDisabled = event.target.checked
                 if (isNameFieldDisabled) {
-                  editMenuItemForm.setFieldsValue({ name: "None" })
+                  editMenuItemForm.setFieldsValue({ name: "None", sizeRestrictionEnabled: false, maxSize: null })
                 }
                 setNameFieldDisabled(isNameFieldDisabled)
               }}
@@ -406,6 +419,37 @@ const SingleMenu = ({
               No Thaali
             </Checkbox>
           </Form.Item>
+          {!nameFieldDisabled && (
+            <Form.Item noStyle shouldUpdate={(prev: any, curr: any) => prev.sizeRestrictionEnabled !== curr.sizeRestrictionEnabled}>
+              {() => (
+                <Space style={{ marginTop: "0.5rem" }}>
+                  <Form.Item
+                    name="sizeRestrictionEnabled"
+                    valuePropName="checked"
+                    style={{ marginBottom: 0 }}
+                  >
+                    <Switch size="small" />
+                  </Form.Item>
+                  <span>Limit item size</span>
+                  {editMenuItemForm.getFieldValue("sizeRestrictionEnabled") && (
+                    <Form.Item
+                      name="maxSize"
+                      rules={[{ required: true, message: "Select max size" }]}
+                      style={{ marginBottom: 0 }}
+                    >
+                      <Select style={{ width: 120 }} placeholder="Max size">
+                        {ALL_SIZES.map((size) => (
+                          <Select.Option key={size} value={size}>
+                            {size}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  )}
+                </Space>
+              )}
+            </Form.Item>
+          )}
         </Form>
       </Modal>
       <Modal

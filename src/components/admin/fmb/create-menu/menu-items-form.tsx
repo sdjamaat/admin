@@ -14,7 +14,10 @@ import {
   Upload,
   Alert,
   Popover,
+  Select,
+  Switch,
 } from "antd"
+import { ALL_SIZES } from "../../../../utils/thaali-sizes"
 import CustomMessage from "../../../custom-message"
 import Checklist from "./presubmit-checklist"
 import { Row, Col } from "react-bootstrap"
@@ -362,6 +365,50 @@ const MenuItemsForm = ({
                         </Button>
                       </Col>
                     </Row>
+
+                    {!disabledItems.includes(field.name) && (
+                      <Row style={{ marginTop: ".5rem" }}>
+                        <Col xs={12} sm={12}>
+                          <Form.Item
+                            noStyle
+                            shouldUpdate={(prev: any, curr: any) =>
+                              prev?.items?.[field.name]?.sizeRestrictionEnabled !==
+                              curr?.items?.[field.name]?.sizeRestrictionEnabled
+                            }
+                          >
+                            {() => (
+                              <Space>
+                                <Form.Item
+                                  name={[field.name, "sizeRestrictionEnabled"]}
+                                  fieldKey={[field.fieldKey, "sizeRestrictionEnabled"] as any}
+                                  valuePropName="checked"
+                                  style={{ marginBottom: "0rem" }}
+                                >
+                                  <Switch size="small" />
+                                </Form.Item>
+                                <span>Limit item size</span>
+                                {menuItemsForm.getFieldValue(["items", field.name, "sizeRestrictionEnabled"]) && (
+                                  <Form.Item
+                                    name={[field.name, "maxSize"]}
+                                    fieldKey={[field.fieldKey, "maxSize"] as any}
+                                    rules={[{ required: true, message: "Select max size" }]}
+                                    style={{ marginBottom: "0rem" }}
+                                  >
+                                    <Select style={{ width: 120 }} placeholder="Max size">
+                                      {ALL_SIZES.map((size) => (
+                                        <Select.Option key={size} value={size}>
+                                          {size}
+                                        </Select.Option>
+                                      ))}
+                                    </Select>
+                                  </Form.Item>
+                                )}
+                              </Space>
+                            )}
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    )}
                     <Divider
                       style={{ marginBottom: ".8rem", marginTop: ".8rem" }}
                     />

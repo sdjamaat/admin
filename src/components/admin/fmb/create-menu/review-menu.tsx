@@ -42,6 +42,9 @@ const ReviewMenu = ({ setStep, hijrimonthForm, menuitemsForm, submitMenu }: any)
                   </li>
                 )}
                 <li>Date: {item.date.format("dddd, MMM Do YYYY")}</li>
+                {!item.nothaali && item.sizeRestrictionEnabled && (
+                  <li>Max Size: {item.maxSize}</li>
+                )}
               </ul>
             </div>
           )
