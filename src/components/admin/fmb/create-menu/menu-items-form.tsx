@@ -376,7 +376,7 @@ const MenuItemsForm = ({
                                     style={{ marginBottom: 0 }}
                                   >
                                     <Select size="small" style={{ width: 90 }} placeholder="Max">
-                                      {ALL_SIZES.map((size) => (
+                                      {ALL_SIZES.filter((s) => s !== "Grand").map((size) => (
                                         <Select.Option key={size} value={size}>
                                           {size}
                                         </Select.Option>

@@ -21,10 +21,3 @@ export const getAllowedSizes = (effectiveMaxSize: string): string[] => {
   const maxRank = SIZE_HIERARCHY[effectiveMaxSize] ?? 4
   return ALL_SIZES.filter((size) => SIZE_HIERARCHY[size] <= maxRank)
 }
-
-export const canSelectSize = (size: string, effectiveMaxSize: string): boolean => {
-  const sizeRank = SIZE_HIERARCHY[size]
-  const maxRank = SIZE_HIERARCHY[effectiveMaxSize]
-  if (sizeRank === undefined || maxRank === undefined) return false
-  return sizeRank <= maxRank
-}

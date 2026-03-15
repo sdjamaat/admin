@@ -11,7 +11,7 @@ import {
   Checkbox,
   message,
 } from "antd"
-import { InfoCircleOutlined } from "@ant-design/icons"
+import { InfoCircleOutlined, WarningOutlined } from "@ant-design/icons"
 import styled from "styled-components"
 import { db } from "../../../../lib/firebase"
 import { doc, getDoc, getDocs, setDoc, updateDoc, collection, serverTimestamp, arrayUnion } from "firebase/firestore"
@@ -238,7 +238,7 @@ const MakeSelections = () => {
         if (!item.nothaali) {
           const allowed = getItemAllowedSizes(item)
           // Auto-clamp to item's effective max if selected size exceeds it
-          const effectiveSize = allowed.includes(size) ? size : allowed[allowed.length - 1]
+          const effectiveSize = allowed.includes(size) ? size : allowed[0]
           newSelections[item.id] = effectiveSize
           fieldUpdates[`selection_${item.id}`] = effectiveSize
         }
@@ -554,6 +554,14 @@ const MakeSelections = () => {
                           "dddd, MMM Do YYYY"
                         )}
                       </div>
+                      {item.sizeRestrictionEnabled && selections[item.id] &&
+                        selections[item.id] !== "No Thaali" &&
+                        !getItemAllowedSizes(item).includes(selections[item.id]) && (
+                        <div style={{ color: "#ff4d4f", fontSize: "0.85rem", marginTop: "0.25rem" }}>
+                          <WarningOutlined style={{ marginRight: "0.3rem" }} />
+                          Submitted "{selections[item.id]}" exceeds max ({item.maxSize})
+                        </div>
+                      )}
                     </Col>
                     <Col xs={24} md={12}>
                       <Form.Item

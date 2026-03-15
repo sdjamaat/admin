@@ -438,7 +438,7 @@ const SingleMenu = ({
                       style={{ marginBottom: 0 }}
                     >
                       <Select style={{ width: 120 }} placeholder="Max size">
-                        {ALL_SIZES.map((size) => (
+                        {ALL_SIZES.filter((s) => s !== "Grand").map((size) => (
                           <Select.Option key={size} value={size}>
                             {size}
                           </Select.Option>
