@@ -14,7 +14,10 @@ import {
   Upload,
   Alert,
   Popover,
+  Select,
+  Switch,
 } from "antd"
+import { ALL_SIZES } from "../../../../utils/thaali-sizes"
 import CustomMessage from "../../../custom-message"
 import Checklist from "./presubmit-checklist"
 import { Row, Col } from "react-bootstrap"
@@ -327,13 +330,13 @@ const MenuItemsForm = ({
                         <Input placeholder="Reason for no thaali (optional)" />
                       </Form.Item>
                     )}
-                    <Row>
-                      <Col xs={7} sm={8}>
+                    <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: ".5rem 1rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", flex: "1 1 auto", minWidth: 0 }}>
                         <Form.Item
                           name={[field.name, "nothaali"]}
                           fieldKey={[field.fieldKey, "nothaali"] as any}
                           valuePropName="checked"
-                          style={{ marginBottom: "0rem" }}
+                          style={{ marginBottom: 0, marginRight: "1rem" }}
                         >
                           <Checkbox
                             onChange={(event: any) =>
@@ -343,25 +346,61 @@ const MenuItemsForm = ({
                             No Thaali
                           </Checkbox>
                         </Form.Item>
-                      </Col>
-                      <Col xs={5} sm={4}>
-                        <Button
-                          className="float-right"
-                          style={{ width: "100%" }}
-                          danger
-                          onClick={async () => {
-                            // reset disabled items array after removing an item
-                            // using the fields value after removal to determine which indexes are still disabled
-                            await remove(field.name)
 
-                            //reset the disabled items array
-                            await resetDisabledItemsArrayAfterItemDelete()
-                          }}
-                        >
-                          Delete
-                        </Button>
-                      </Col>
-                    </Row>
+                        {!disabledItems.includes(field.name) && (
+                          <Form.Item
+                            noStyle
+                            shouldUpdate={(prev: any, curr: any) =>
+                              prev?.items?.[field.name]?.sizeRestrictionEnabled !==
+                              curr?.items?.[field.name]?.sizeRestrictionEnabled
+                            }
+                          >
+                            {() => (
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                <Form.Item
+                                  name={[field.name, "sizeRestrictionEnabled"]}
+                                  fieldKey={[field.fieldKey, "sizeRestrictionEnabled"] as any}
+                                  valuePropName="checked"
+                                  style={{ marginBottom: 0 }}
+                                >
+                                  <Switch size="small" />
+                                </Form.Item>
+                                <span style={{ fontSize: ".85rem", color: "#666", whiteSpace: "nowrap" }}>
+                                  Limit size
+                                </span>
+                                {menuItemsForm.getFieldValue(["items", field.name, "sizeRestrictionEnabled"]) && (
+                                  <Form.Item
+                                    name={[field.name, "maxSize"]}
+                                    fieldKey={[field.fieldKey, "maxSize"] as any}
+                                    rules={[{ required: true, message: "Required" }]}
+                                    style={{ marginBottom: 0 }}
+                                  >
+                                    <Select size="small" style={{ width: 90 }} placeholder="Max">
+                                      {ALL_SIZES.filter((s) => s !== "Grand").map((size) => (
+                                        <Select.Option key={size} value={size}>
+                                          {size}
+                                        </Select.Option>
+                                      ))}
+                                    </Select>
+                                  </Form.Item>
+                                )}
+                              </div>
+                            )}
+                          </Form.Item>
+                        )}
+                      </div>
+
+                      <Button
+                        className="item-delete-btn"
+                        danger
+                        onClick={async () => {
+                          await remove(field.name)
+                          await resetDisabledItemsArrayAfterItemDelete()
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </div>
                     <Divider
                       style={{ marginBottom: ".8rem", marginTop: ".8rem" }}
                     />
@@ -416,6 +455,12 @@ const MenuItemsWrapper = styled.div`
 
   div > .ant-space {
     width: 100%;
+  }
+
+  @media (max-width: 575px) {
+    .item-delete-btn {
+      width: 100%;
+    }
   }
 `
 

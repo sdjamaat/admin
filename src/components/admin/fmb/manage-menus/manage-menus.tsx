@@ -149,6 +149,8 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }: any) => {
             id: itemID,
             name: newValues.name,
             reasonNoThaali: newValues.reasonNoThaali || null,
+            sizeRestrictionEnabled: newValues.sizeRestrictionEnabled || false,
+            maxSize: newValues.sizeRestrictionEnabled ? newValues.maxSize : null,
           })
         } else {
           let index = 0
@@ -163,7 +165,9 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }: any) => {
                   item.date !== newValues.date.format("MM-DD-YYYY") ||
                   item.nothaali !== newValues.nothaali ||
                   item.name !== newValues.name ||
-                  item.reasonNoThaali !== newValues.reasonNoThaali
+                  item.reasonNoThaali !== newValues.reasonNoThaali ||
+                  (item.sizeRestrictionEnabled || false) !== (newValues.sizeRestrictionEnabled || false) ||
+                  item.maxSize !== newValues.maxSize
                 ) {
                   shouldUpdateInFirebase = true
                   // set new values
@@ -171,6 +175,8 @@ const ManageMenus = ({ getMenus, setMenusInAdminComp }: any) => {
                   item.nothaali = newValues.nothaali
                   item.name = newValues.name
                   item.reasonNoThaali = newValues.reasonNoThaali || null
+                  item.sizeRestrictionEnabled = newValues.sizeRestrictionEnabled || false
+                  item.maxSize = newValues.sizeRestrictionEnabled ? newValues.maxSize : null
                 }
               }
               continue

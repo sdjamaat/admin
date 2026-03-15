@@ -11,7 +11,7 @@ import {
   Checkbox,
   message,
 } from "antd"
-import { InfoCircleOutlined } from "@ant-design/icons"
+import { InfoCircleOutlined, WarningOutlined } from "@ant-design/icons"
 import styled from "styled-components"
 import { db } from "../../../../lib/firebase"
 import { doc, getDoc, getDocs, setDoc, updateDoc, collection, serverTimestamp, arrayUnion } from "firebase/firestore"
@@ -19,6 +19,7 @@ import { DateContext } from "../../../../provider/date-context"
 import { AuthContext } from "../../../../provider/auth-context"
 import { shortMonthToLongMonth } from "../../../../functions/calendar"
 import CustomMessage from "../../../custom-message"
+import { getEffectiveMaxSize, getAllowedSizes } from "../../../../utils/thaali-sizes"
 import moment from "moment"
 
 const { Option } = Select
@@ -216,6 +217,17 @@ const MakeSelections = () => {
     }))
   }
 
+  const getItemEffectiveMaxSize = (item: any) => {
+    if (!selectedFamily) return "Grand"
+    const familyMax = selectedFamily.fmb.thaaliSize
+    const itemMax = item.sizeRestrictionEnabled ? item.maxSize : undefined
+    return getEffectiveMaxSize(familyMax, itemMax)
+  }
+
+  const getItemAllowedSizes = (item: any) => {
+    return getAllowedSizes(getItemEffectiveMaxSize(item))
+  }
+
   const handleUniversalChange = (checked: any, size: any) => {
     if (checked && size) {
       setUniversalSize(size)
@@ -224,8 +236,11 @@ const MakeSelections = () => {
 
       menuItems.forEach((item: any) => {
         if (!item.nothaali) {
-          newSelections[item.id] = size
-          fieldUpdates[`selection_${item.id}`] = size
+          const allowed = getItemAllowedSizes(item)
+          // Auto-clamp to item's effective max if selected size exceeds it
+          const effectiveSize = allowed.includes(size) ? size : allowed[0]
+          newSelections[item.id] = effectiveSize
+          fieldUpdates[`selection_${item.id}`] = effectiveSize
         }
       })
 
@@ -528,12 +543,25 @@ const MakeSelections = () => {
                     <Col xs={24} md={12}>
                       <div style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
                         {item.name}
+                        {item.sizeRestrictionEnabled && (
+                          <span style={{ fontSize: "0.8rem", color: "#faad14", marginLeft: "0.5rem" }}>
+                            (Max: {item.maxSize})
+                          </span>
+                        )}
                       </div>
                       <div style={{ color: "gray", fontSize: "0.9rem" }}>
                         {moment(item.date, "MM-DD-YYYY").format(
                           "dddd, MMM Do YYYY"
                         )}
                       </div>
+                      {item.sizeRestrictionEnabled && selections[item.id] &&
+                        selections[item.id] !== "No Thaali" &&
+                        !getItemAllowedSizes(item).includes(selections[item.id]) && (
+                        <div style={{ color: "#ff4d4f", fontSize: "0.85rem", marginTop: "0.25rem" }}>
+                          <WarningOutlined style={{ marginRight: "0.3rem" }} />
+                          Submitted "{selections[item.id]}" exceeds max ({item.maxSize})
+                        </div>
+                      )}
                     </Col>
                     <Col xs={24} md={12}>
                       <Form.Item
@@ -548,7 +576,7 @@ const MakeSelections = () => {
                           }
                           style={{ width: "100%" }}
                         >
-                          {thaaliSizes.map((size: any) => (
+                          {getItemAllowedSizes(item).map((size: any) => (
                             <Option key={size} value={size}>
                               <span style={{ color: getThaaliSizeColor(size) }}>
                                 {size}

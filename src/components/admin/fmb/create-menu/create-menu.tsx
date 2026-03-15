@@ -74,6 +74,8 @@ const CreateMenu = ({ setPage, refetchMenus }: any) => {
       item.date = item.date.format("MM-DD-YYYY")
       item.nothaali = item.nothaali || false
       item.reasonNoThaali = item.reasonNoThaali || null
+      item.sizeRestrictionEnabled = item.sizeRestrictionEnabled || false
+      item.maxSize = item.sizeRestrictionEnabled ? item.maxSize : null
       item.id = generateUniqueIDForItem()
     }
     return newMenuItemsArr
