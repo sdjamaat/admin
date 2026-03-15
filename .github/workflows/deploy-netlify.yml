@@ -3,8 +3,6 @@ name: Track Netlify Deploy
 on:
   push:
     branches: [master]
-  pull_request:
-    branches: [master]
 
 jobs:
   track-deploy:
