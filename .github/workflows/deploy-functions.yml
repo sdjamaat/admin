@@ -2,7 +2,7 @@ name: Deploy Firebase Functions
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - "functions/**"
       - "firebase.json"

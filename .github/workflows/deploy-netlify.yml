@@ -2,7 +2,7 @@ name: Track Netlify Deploy
 
 on:
   push:
-    branches: [master]
+    branches: [main]
 
 jobs:
   track-deploy:
