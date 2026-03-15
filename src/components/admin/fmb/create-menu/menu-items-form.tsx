@@ -330,85 +330,75 @@ const MenuItemsForm = ({
                         <Input placeholder="Reason for no thaali (optional)" />
                       </Form.Item>
                     )}
-                    <Row>
-                      <Col xs={7} sm={8}>
-                        <Form.Item
-                          name={[field.name, "nothaali"]}
-                          fieldKey={[field.fieldKey, "nothaali"] as any}
-                          valuePropName="checked"
-                          style={{ marginBottom: "0rem" }}
+                    <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: ".5rem" }}>
+                      <Form.Item
+                        name={[field.name, "nothaali"]}
+                        fieldKey={[field.fieldKey, "nothaali"] as any}
+                        valuePropName="checked"
+                        style={{ marginBottom: 0 }}
+                      >
+                        <Checkbox
+                          onChange={(event: any) =>
+                            handleCheckBox(event, field.name)
+                          }
                         >
-                          <Checkbox
-                            onChange={(event: any) =>
-                              handleCheckBox(event, field.name)
-                            }
-                          >
-                            No Thaali
-                          </Checkbox>
+                          No Thaali
+                        </Checkbox>
+                      </Form.Item>
+
+                      {!disabledItems.includes(field.name) && (
+                        <Form.Item
+                          noStyle
+                          shouldUpdate={(prev: any, curr: any) =>
+                            prev?.items?.[field.name]?.sizeRestrictionEnabled !==
+                            curr?.items?.[field.name]?.sizeRestrictionEnabled
+                          }
+                        >
+                          {() => (
+                            <Space size={4} style={{ alignItems: "center" }}>
+                              <Form.Item
+                                name={[field.name, "sizeRestrictionEnabled"]}
+                                fieldKey={[field.fieldKey, "sizeRestrictionEnabled"] as any}
+                                valuePropName="checked"
+                                style={{ marginBottom: 0 }}
+                              >
+                                <Switch size="small" />
+                              </Form.Item>
+                              <span style={{ fontSize: ".85rem", color: "#666" }}>Max size</span>
+                              {menuItemsForm.getFieldValue(["items", field.name, "sizeRestrictionEnabled"]) && (
+                                <Form.Item
+                                  name={[field.name, "maxSize"]}
+                                  fieldKey={[field.fieldKey, "maxSize"] as any}
+                                  rules={[{ required: true, message: "Select max size" }]}
+                                  style={{ marginBottom: 0 }}
+                                >
+                                  <Select size="small" style={{ width: 90 }} placeholder="Max">
+                                    {ALL_SIZES.map((size) => (
+                                      <Select.Option key={size} value={size}>
+                                        {size}
+                                      </Select.Option>
+                                    ))}
+                                  </Select>
+                                </Form.Item>
+                              )}
+                            </Space>
+                          )}
                         </Form.Item>
-                      </Col>
-                      <Col xs={5} sm={4}>
+                      )}
+
+                      <div style={{ marginLeft: "auto" }}>
                         <Button
-                          className="float-right"
-                          style={{ width: "100%" }}
+                          style={{ minWidth: "70px" }}
                           danger
                           onClick={async () => {
-                            // reset disabled items array after removing an item
-                            // using the fields value after removal to determine which indexes are still disabled
                             await remove(field.name)
-
-                            //reset the disabled items array
                             await resetDisabledItemsArrayAfterItemDelete()
                           }}
                         >
                           Delete
                         </Button>
-                      </Col>
-                    </Row>
-
-                    {!disabledItems.includes(field.name) && (
-                      <Row style={{ marginTop: ".5rem" }}>
-                        <Col xs={12} sm={12}>
-                          <Form.Item
-                            noStyle
-                            shouldUpdate={(prev: any, curr: any) =>
-                              prev?.items?.[field.name]?.sizeRestrictionEnabled !==
-                              curr?.items?.[field.name]?.sizeRestrictionEnabled
-                            }
-                          >
-                            {() => (
-                              <Space>
-                                <Form.Item
-                                  name={[field.name, "sizeRestrictionEnabled"]}
-                                  fieldKey={[field.fieldKey, "sizeRestrictionEnabled"] as any}
-                                  valuePropName="checked"
-                                  style={{ marginBottom: "0rem" }}
-                                >
-                                  <Switch size="small" />
-                                </Form.Item>
-                                <span>Limit item size</span>
-                                {menuItemsForm.getFieldValue(["items", field.name, "sizeRestrictionEnabled"]) && (
-                                  <Form.Item
-                                    name={[field.name, "maxSize"]}
-                                    fieldKey={[field.fieldKey, "maxSize"] as any}
-                                    rules={[{ required: true, message: "Select max size" }]}
-                                    style={{ marginBottom: "0rem" }}
-                                  >
-                                    <Select style={{ width: 120 }} placeholder="Max size">
-                                      {ALL_SIZES.map((size) => (
-                                        <Select.Option key={size} value={size}>
-                                          {size}
-                                        </Select.Option>
-                                      ))}
-                                    </Select>
-                                  </Form.Item>
-                                )}
-                              </Space>
-                            )}
-                          </Form.Item>
-                        </Col>
-                      </Row>
-                    )}
+                      </div>
+                    </div>
                     <Divider
                       style={{ marginBottom: ".8rem", marginTop: ".8rem" }}
                     />
