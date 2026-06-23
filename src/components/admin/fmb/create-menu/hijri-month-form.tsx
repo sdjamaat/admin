@@ -21,9 +21,15 @@ const HijriMonthForm = ({ monthsFinished, setStep, values, setValues }: any) => 
   const currentHijriMonth = getHijriDate().month
   const currentHijriYear = getHijriDate().year
 
+  // moment-hijri's iMonth() is zero-indexed, so Moharram is month 0. When we're
+  // already in Moharram, the current Moharram belongs to the current Hijri year.
+  // Otherwise Moharram is the first month of the upcoming year.
+  const moharramDisplayYear =
+    currentHijriMonth === 0 ? currentHijriYear : currentHijriYear + 1
+
   const onFinish = (values: any) => {
     if (values.hijrimonth === "moharram") {
-      setValues({ hijrimonth: "moharram", year: currentHijriYear + 1 })
+      setValues({ hijrimonth: "moharram", year: moharramDisplayYear })
     } else {
       setValues({ hijrimonth: values.hijrimonth, year: currentHijriYear })
     }
@@ -63,9 +69,7 @@ const HijriMonthForm = ({ monthsFinished, setStep, values, setValues }: any) => 
               ) {
                 return (
                   <Option value={shortMonth} key={index}>
-                    {`${shortMonthToLongMonth("moharram")} (${
-                      currentHijriYear + 1
-                    })`}
+                    {`${shortMonthToLongMonth("moharram")} (${moharramDisplayYear})`}
                   </Option>
                 )
               } else if (

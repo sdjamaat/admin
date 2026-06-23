@@ -23,7 +23,8 @@ const CreateMenu = ({ setPage, refetchMenus }: any) => {
   const getMonthsFinished = async () => {
     let finishedArr: any[] = []
     try {
-      const queryForFmbHijriDocRef = doc(db, "fmb", getHijriDate().year.toString())
+      const currentYear = getHijriDate().year
+      const queryForFmbHijriDocRef = doc(db, "fmb", currentYear.toString())
 
       const yearCollection = await getDoc(queryForFmbHijriDocRef)
       if (yearCollection.exists()) {
@@ -36,6 +37,31 @@ const CreateMenu = ({ setPage, refetchMenus }: any) => {
         })
         // Reference the subcollection (no-op, just establishing path)
         collection(queryForFmbHijriDocRef, "menus")
+      }
+
+      // Moharram is stored in the *previous* Hijri year's document. When we're
+      // currently in Moharram (iMonth === 0), the Moharram option in the form
+      // refers to the current Moharram, which is tracked in fmb/{year - 1} -- not
+      // the "moharram" entry in this year's doc (that would be next year's). Make
+      // sure that previous-year doc exists so submitMenu can write to it, and
+      // reflect whether the current Moharram has already been created.
+      if (getHijriDate().month === 0) {
+        finishedArr = finishedArr.filter((month: any) => month !== "moharram")
+
+        const prevYearDocRef = doc(db, "fmb", (currentYear - 1).toString())
+        const prevYearCollection = await getDoc(prevYearDocRef)
+        if (prevYearCollection.exists()) {
+          if (prevYearCollection.data().finished?.includes("moharram")) {
+            finishedArr = [...finishedArr, "moharram"]
+          }
+        } else {
+          await setDoc(prevYearDocRef, {
+            finished: [],
+            activeMenu: null,
+            lastActiveMenu: null,
+          })
+          collection(prevYearDocRef, "menus")
+        }
       }
     } catch (error) {
       console.log("Error getting documents", error)
@@ -85,7 +111,17 @@ const CreateMenu = ({ setPage, refetchMenus }: any) => {
     setIsSubmitting(true)
 
     try {
-      const queryForFmbHijriDocRef = doc(db, "fmb", getHijriDate().year.toString())
+      // Moharram of display year D is stored in the previous year's document
+      // (fmb/{D - 1}); every other month lives in its own display year's doc.
+      // For non-Moharram months and for next year's Moharram this resolves to the
+      // current Hijri year exactly as before, so existing data is unaffected.
+      const targetYear = (
+        hijriMonthFormValues.hijrimonth === "moharram"
+          ? hijriMonthFormValues.year - 1
+          : hijriMonthFormValues.year
+      ).toString()
+
+      const queryForFmbHijriDocRef = doc(db, "fmb", targetYear)
 
       await updateDoc(queryForFmbHijriDocRef, {
         finished: arrayUnion(
@@ -94,7 +130,7 @@ const CreateMenu = ({ setPage, refetchMenus }: any) => {
       })
 
       await setDoc(
-        doc(db, "fmb", getHijriDate().year.toString(), "menus", hijriMonthFormValues.hijrimonth),
+        doc(db, "fmb", targetYear, "menus", hijriMonthFormValues.hijrimonth),
         {
           items: getProcessedMenuItemsArray(),
           status: "queued",
