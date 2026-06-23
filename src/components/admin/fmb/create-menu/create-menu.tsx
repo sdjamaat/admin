@@ -16,6 +16,8 @@ const CreateMenu = ({ setPage, refetchMenus }: any) => {
   const [step, setstep] = useState("hijrimonth")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [monthsFinished, setMonthsFinished] = useState<any[]>([])
+  const [currentMoharramFinished, setCurrentMoharramFinished] = useState(false)
+  const [nextMoharramFinished, setNextMoharramFinished] = useState(false)
   const [hijriMonthFormValues, setHijriMonthFormValues] = useState<any>({})
   const [menuItemsFormValues, setMenuItemsFormValues] = useState<any>({})
   const [disabledMenuItems, setDisabledMenuItemNames] = useState<any[]>([])
@@ -39,21 +41,23 @@ const CreateMenu = ({ setPage, refetchMenus }: any) => {
         collection(queryForFmbHijriDocRef, "menus")
       }
 
-      // Moharram is stored in the *previous* Hijri year's document. When we're
-      // currently in Moharram (iMonth === 0), the Moharram option in the form
-      // refers to the current Moharram, which is tracked in fmb/{year - 1} -- not
-      // the "moharram" entry in this year's doc (that would be next year's). Make
-      // sure that previous-year doc exists so submitMenu can write to it, and
-      // reflect whether the current Moharram has already been created.
-      if (getHijriDate().month === 0) {
-        finishedArr = finishedArr.filter((month: any) => month !== "moharram")
+      // Moharram of display year D is stored in the previous year's document
+      // (fmb/{D-1}). So the "moharram" entry in this year's doc (fmb/{currentYear})
+      // represents NEXT year's Moharram, while the CURRENT Moharram is tracked in
+      // fmb/{currentYear - 1}. Track both independently so the form can offer them
+      // as two separate options.
+      setNextMoharramFinished(finishedArr.includes("moharram"))
 
+      // The current Moharram is only offered while we're actually in Moharram
+      // (iMonth === 0). Make sure the previous-year doc exists so submitMenu can
+      // write to it, and reflect whether the current Moharram already exists.
+      if (getHijriDate().month === 0) {
         const prevYearDocRef = doc(db, "fmb", (currentYear - 1).toString())
         const prevYearCollection = await getDoc(prevYearDocRef)
         if (prevYearCollection.exists()) {
-          if (prevYearCollection.data().finished?.includes("moharram")) {
-            finishedArr = [...finishedArr, "moharram"]
-          }
+          setCurrentMoharramFinished(
+            prevYearCollection.data().finished?.includes("moharram") ?? false
+          )
         } else {
           await setDoc(prevYearDocRef, {
             finished: [],
@@ -159,6 +163,8 @@ const CreateMenu = ({ setPage, refetchMenus }: any) => {
         return (
           <HijriMonthForm
             monthsFinished={monthsFinished}
+            currentMoharramFinished={currentMoharramFinished}
+            nextMoharramFinished={nextMoharramFinished}
             setStep={setstep}
             values={hijriMonthFormValues}
             setValues={setHijriMonthFormValues}
@@ -187,6 +193,8 @@ const CreateMenu = ({ setPage, refetchMenus }: any) => {
         return (
           <HijriMonthForm
             monthsFinished={monthsFinished}
+            currentMoharramFinished={currentMoharramFinished}
+            nextMoharramFinished={nextMoharramFinished}
             setStep={setstep}
             values={hijriMonthFormValues}
             setValues={setHijriMonthFormValues}
