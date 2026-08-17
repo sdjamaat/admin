@@ -137,6 +137,5 @@ Netlify builds and deploys pushes to `main` using `netlify.toml`. The production
 ## Team resources
 
 - [SD Jamaat Website Trello board](https://trello.com/b/7tlGo398/main-site-admin-panel)
-- [Cohere dashboard](https://app.cohere.io/dashboard) for approved support and monitoring access
 
 Ask a project maintainer for access to development credentials and team-owned services.
