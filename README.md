@@ -1,113 +1,142 @@
-## SD Jamaat Website Admin Panel
+# SD Jamaat Website Admin Panel
 
-### Current tooling:
+Administration portal for the San Diego Dawoodi Bohra Jamaat website and its member services.
 
-- GatsbyJS & React
-- Ant Design UI and Bootstrap
-- Firebase Cloudstore as DB
-- Firebase Cloud Functions
+## Features
 
-### Local Development
+- Manage member and administrator accounts with permission-based controls
+- Export user and family data
+- Create, edit, and remove Faiz-ul-Mawaid menus
+- Manage family enrollments and make thaali selections on a family's behalf
+- View, export, and delete menu submissions
+- Generate printable thaali labels from submission data
+- Deploy the Firebase Functions used by both the admin panel and member website
 
-Step 1: Clone the repository with Git
+## Tech stack
+
+- React 18 and TypeScript
+- Vite 6
+- Ant Design, React Bootstrap, and styled-components
+- Firebase Authentication, Firestore, and callable Functions
+- Firebase Functions with SendGrid
+- Netlify
+
+## Frontend development
+
+### Requirements
+
+- Node.js 20 recommended (and required by the Firebase Functions package)
+- npm
+- Development Firebase configuration and an authorized development admin account from a project maintainer
+
+### Setup
 
 ```shell
-git clone https://github.com/sdjamaat/admin.git sdjadmin
-cd sdjadmin
+git clone https://github.com/sdjamaat/admin.git
+cd admin
+npm ci
 ```
 
-Step 2: Download npm modules ([NodeJS](https://nodejs.org/en/) and [Yarn](https://classic.yarnpkg.com/en/docs/install/)installation required).
+Create `.env.development` in the repository root:
 
-```shell
-yarn install
+```dotenv
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_DATABASE_URL=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+VITE_FIREBASE_MEASUREMENT_ID=
+VITE_ENCRYPTION_TYPE=
+VITE_ENCRYPTION_SECRET=
 ```
 
-> Warning: DO NOT use npm to do this - it will screw up the entire project. If you do accidently install using npm instead of yarn, delete your `node_modules` folder and also delete your `package-lock.json` file. Then follow the step listed above again.
+Do not commit environment files. Variables prefixed with `VITE_` are bundled into the browser application, so they must not contain server-side secrets.
 
-Step 3: Run locally on live server
+Start the development server:
 
 ```shell
 npm run dev
-# then navigate to localhost:4000
 ```
 
-#### Install new npm modules
+Open <http://localhost:4000>. Ask a project maintainer for development admin access; production credentials should not be used for local testing.
 
-Always use yarn to install new npm modules - otherwise, follow the warning message below if you accidently install with npm.
+## Frontend scripts
+
+| Command           | Purpose                                                               |
+| ----------------- | --------------------------------------------------------------------- |
+| `npm run dev`     | Start the Vite development server on port 4000                        |
+| `npm run build`   | Type-check and create a production build in `dist/`                   |
+| `npm run preview` | Preview the production build locally                                  |
+| `npm run format`  | Format JavaScript, TypeScript, JSON, and Markdown files with Prettier |
+
+Run `npm run build` before opening a pull request to catch TypeScript and production-build errors.
+
+## Firebase Functions
+
+The `functions/` package contains the shared backend functions for contact-form emails, registration emails, administrator-account removal, registration deactivation, and thaali confirmation emails.
+
+### Local setup
+
+Install the [Firebase CLI](https://firebase.google.com/docs/cli), then install the function dependencies:
 
 ```shell
-yarn add [some npm module]
-```
-
-### Working with Firebase Functions
-
-In this repository, there is a folder called `functions` which contains code related to Firebase cloud functions.
-
-Step 1: Install the `firebase-tools` npm package globally
-
-```shell
-npm install -g firebase-tools
-```
-
-Step 2: Go into the `functions` directory. You will need to install dependencies here as well, however with `npm` this time instead of `yarn`
-
-```shell
+npm install --global firebase-tools
 cd functions
-npm install
+npm ci
 ```
 
-Step 3: Configure .env file
+Create `functions/.env` with a development SendGrid key:
 
-Create a file and name it .env inside the functions folder
-You can set the SendGrid API key here
-
-```
-SENDGRID_API_KEY=value
+```dotenv
+SENDGRID_API_KEY=
 ```
 
-You can find the SENDGRID_API_KEY in the .env.development file in the `important-files` repository
+Never commit the SendGrid key or copy the production key into a local environment.
 
-#### To deploy new functions:
+### Function scripts
 
-Helpful link: https://firebase.googleblog.com/2016/07/deploy-to-multiple-environments-with.html
+Run these commands from `functions/`:
 
-Step 1: You need to first be log into the webmaster@sandiegojamaat.net Google account. You only need to do this once (unless you're switching between other Firebase accounts)
+| Command          | Purpose                                                     |
+| ---------------- | ----------------------------------------------------------- |
+| `npm run lint`   | Lint the TypeScript function source                         |
+| `npm run build`  | Compile the functions into `functions/lib/`                 |
+| `npm run serve`  | Build and start the Firebase Functions emulator             |
+| `npm run shell`  | Build and start the Firebase Functions shell                |
+| `npm run logs`   | Read deployed function logs                                 |
+| `npm run deploy` | Deploy Firebase Functions using the active Firebase project |
+
+For a manual production deploy, authenticate with the approved Firebase account and specify the production alias explicitly:
 
 ```shell
-# this will open up a browser window where you'll need to login
 firebase login
+firebase deploy --only functions --project production
 ```
 
-Step 2: Use this shell command to deploy the functions:
+Normal production function deployments are automated: pushes to `main` that change `functions/**` or `firebase.json` run the `Deploy Firebase Functions` GitHub Actions workflow.
 
-```shell
-firebase deploy --only functions
+## Project structure
+
+```text
+src/
+  components/admin/fmb/    Menu, enrollment, submission, selection, and label tools
+  components/admin/users/  Account management and exports
+  provider/                Authentication and date contexts
+  lib/firebase.ts          Firebase client initialization
+functions/
+  src/                     Firebase Function source
+  lib/                     Generated JavaScript output
 ```
 
-### Cohere Monitoring
+## Frontend deployment
 
-[Cohere](https://cohere.so/) is a monitoring platform that allows us to see in real-time how people are using the jamaat website and also allows us to control their screen if we need to. It is especially useful for helping out folks out who need assistance in navigating the jamaat website.
+Netlify builds and deploys pushes to `main` using `netlify.toml`. The production build output is `dist/`, and the catch-all redirect in that file supports client-side routing. The `Track Netlify Deploy` GitHub Actions workflow waits for the matching Netlify deploy and reports whether it succeeded.
 
-Cohere Dashboard: https://app.cohere.so/dashboard
+## Team resources
 
-> In order to access the dashboard you must login with the webmaster@sandiegojamaat.net Google account. If you need access to this account, ask Ibrahim.
+- [SD Jamaat Website Trello board](https://trello.com/b/7tlGo398/main-site-admin-panel)
+- [Cohere dashboard](https://app.cohere.io/dashboard) for approved support and monitoring access
 
-### Trello Board
-
-Access the Trello board to suggest new tasks and centralize the collection of support tickets:
-
-[SD Jamaat Website Trello Board](https://trello.com/b/7tlGo398/main-site-admin-panel)
-
-It is currently public, should be accessible to all but you might need an account to make changes.
-
-This Trello board is linked to our email webmaster@sandiegojamaat.net
-
-### Demo credentials
-
-When you develop the site locally, it will automatically connect to the dev instance of the DB. This means that we also need different login credentials that are linked to the dev firebase instance (instead of prod).
-
-#### Demo ADMIN
-
-Ask Ibrahim about admin credentials
-
-> This gives you access to all admin panel functions. There is another FMB demo account but it didn't make sense to put those creds here. Using this login should give you dev ability to access all tools in the admin panel.
+Ask a project maintainer for access to development credentials and team-owned services.
