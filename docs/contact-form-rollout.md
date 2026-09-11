@@ -27,8 +27,16 @@ are single-use and are never persisted in Firestore.
 
 ## 2. Protect quota storage BEFORE deploying the callable
 
-**The production rules are console-managed and were not accessible during PR
-preparation. This repo intentionally does not replace them with guessed rules.**
+**Verified on September 11, 2026 in `sdj-prod` (`sdj-production`):** the
+console-managed rules published June 6, 2026 at 5:34 PM have no matching allow
+for `contactRateLimits`. Rules Playground denied all eight checks: get, create,
+update, and delete, each both unauthenticated and authenticated with a synthetic
+UID. These simulations did not write production documents. No rules change was
+needed for quota privacy. Recheck if rules change before release.
+
+The existing `contact` rules still allow public creation and authenticated
+read/update/delete. Lock down direct contact writes only during the coordinated
+release in step 4; doing so now would break the currently deployed form.
 
 Export and review the existing rules. Ensure no web/mobile client, including
 signed-in users, can read or write `contactRateLimits/{document=**}`. The Firebase
