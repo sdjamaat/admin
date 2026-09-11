@@ -139,3 +139,10 @@ Netlify builds and deploys pushes to `main` using `netlify.toml`. The production
 - [SD Jamaat Website Trello board](https://trello.com/b/7tlGo398/main-site-admin-panel)
 
 Ask a project maintainer for access to development credentials and team-owned services.
+
+### Contact form protection
+
+Contact submissions use the `submitContactForm` callable with server-verified
+Turnstile and transactional quotas. The old Firestore email trigger is disabled.
+See [contact form rollout](docs/contact-form-rollout.md) for required secrets,
+private Firestore rules, test setup, and the coordinated website/backend release.

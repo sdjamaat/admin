@@ -3,6 +3,7 @@ import sgMail from "@sendgrid/mail"
 import * as admin from "firebase-admin"
 import { ThaaliSubmissionEmailData } from "./types"
 import { myCustomError } from "./logger"
+import { handleContact, reserveContact, verifyTurnstile } from "./contact"
 
 admin.initializeApp()
 
@@ -27,49 +28,57 @@ const TEMPLATE_ID_NEW_USER_REGISTRATION_RECIEPT =
 // template for when a user submits their thaali preferences
 const TEMPLATE_ID_THAALI_SUBMISSIONS = "d-e332ce29c6634d60b29322827eeb0d0b"
 
-/*
-Triggered when a user submits information via the contact us form on the homepage of the website we send two emails
-First email: sent to jamaat admins to let them know someone has submitted an inquiry
-Second email: sent to the user who submitted information, as a receipt
-*/
+// Keep the legacy trigger deployed as a no-op so direct client writes cannot
+// bypass CAPTCHA or send mail. Remove it in a later cleanup after rules are locked.
 export const newContactFormSubmission = functions.firestore
   .document("contact/{contactID}")
-  .onCreate(async (change) => {
-    const submission = change.data() || {}
-    const jamaat_email = {
-      to: ["umoor-dakhiliya@sandiegojamaat.net"],
-      cc: [
-        submission.email,
-        "ibrahim.0814@gmail.com",
-        "qsdoctor@gmail.com",
-        "saifees@gmail.com",
-        "chhatri@gmail.com",
-      ],
-      from: "webmaster@sandiegojamaat.net",
-      templateId: TEMPLATE_ID_CONTACT_US_JAMAAT,
-      dynamic_template_data: {
-        name: submission.name,
-        email: submission.email,
-        phone: submission.phone,
-        message: submission.message,
-      },
-    }
+  .onCreate(async () => undefined)
 
-    const receipt_email = {
-      to: submission.email,
-      from: "webmaster@sandiegojamaat.net",
-      templateId: TEMPLATE_ID_CONTACT_US_RECEIPT,
-      dynamic_template_data: {
-        name: submission.name,
-        email: submission.email,
-        phone: submission.phone,
-        message: submission.message,
+export const submitContactForm = functions
+  .runWith({ secrets: ["TURNSTILE_SECRET_KEY"], maxInstances: 10 })
+  .https.onCall(async (data, context) => {
+    const secret = process.env.TURNSTILE_SECRET_KEY
+    const hostnames = (process.env.CONTACT_ALLOWED_HOSTNAMES || "")
+      .split(",")
+      .map(hostname => hostname.trim())
+      .filter(Boolean)
+    return handleContact(data, context.rawRequest.ip, {
+      verify: token => verifyTurnstile(token, secret, hostnames),
+      reserve: (submission, ip) =>
+        reserveContact(admin.firestore(), submission, ip, secret!),
+      send: async submission => {
+        try {
+          await Promise.all([
+            sgMail.sendMultiple({
+              to: ["umoor-dakhiliya@sandiegojamaat.net"],
+              cc: [
+                "ibrahim.0814@gmail.com",
+                "qsdoctor@gmail.com",
+                "saifees@gmail.com",
+                "chhatri@gmail.com",
+              ],
+              replyTo: submission.email,
+              from: "webmaster@sandiegojamaat.net",
+              templateId: TEMPLATE_ID_CONTACT_US_JAMAAT,
+              dynamicTemplateData: { ...submission },
+            }),
+            sgMail.send({
+              to: submission.email,
+              from: "webmaster@sandiegojamaat.net",
+              templateId: TEMPLATE_ID_CONTACT_US_RECEIPT,
+              dynamicTemplateData: { ...submission },
+            }),
+          ])
+        } catch {
+          // Do not log submitted content, tokens, or provider responses with PII.
+          functions.logger.error("Contact email delivery failed")
+          throw new functions.https.HttpsError(
+            "unavailable",
+            "Could not deliver your message. Please try again later.",
+          )
+        }
       },
-    }
-    return Promise.all([
-      sgMail.sendMultiple(jamaat_email),
-      sgMail.send(receipt_email),
-    ])
+    })
   })
 
 /*

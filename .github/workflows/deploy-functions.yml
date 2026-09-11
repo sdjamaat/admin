@@ -24,8 +24,20 @@ jobs:
         run: npm ci
         working-directory: functions
 
-      - name: Write functions .env file
-        run: echo "SENDGRID_API_KEY=${{ secrets.SENDGRID_API_KEY }}" > functions/.env
+      - name: Test functions
+        run: npm test
+        working-directory: functions
+
+      - name: Write functions environment
+        env:
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          CONTACT_ALLOWED_HOSTNAMES: ${{ vars.CONTACT_ALLOWED_HOSTNAMES }}
+          CONTACT_RULES_READY: ${{ vars.CONTACT_RULES_READY }}
+        run: |
+          test -n "$SENDGRID_API_KEY" || { echo "Missing SENDGRID_API_KEY"; exit 1; }
+          test -n "$CONTACT_ALLOWED_HOSTNAMES" || { echo "Configure CONTACT_ALLOWED_HOSTNAMES first (see contact-form-rollout.md)"; exit 1; }
+          test "$CONTACT_RULES_READY" = "true" || { echo "Verify private contact quota rules first (see contact-form-rollout.md)"; exit 1; }
+          printf 'SENDGRID_API_KEY=%s\nCONTACT_ALLOWED_HOSTNAMES=%s\n' "$SENDGRID_API_KEY" "$CONTACT_ALLOWED_HOSTNAMES" > functions/.env
 
       - name: Deploy to Firebase
         run: npx firebase-tools deploy --only functions --project production --token "$FIREBASE_TOKEN"
