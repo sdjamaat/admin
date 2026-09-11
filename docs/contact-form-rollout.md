@@ -4,6 +4,16 @@ The website PR and this backend PR must be released together. Do not merge until
 steps 1–3 are complete. The backend deployment replaces the old contact trigger
 with a no-op; the old website cannot deliver messages after that deployment.
 
+The deployment workflow deploys only `submitContactForm` and
+`newContactFormSubmission`. Other functions and admin-permission changes are
+outside this release. These two functions use Node.js 22.
+
+Configuration verified September 11, 2026: the managed Cloudflare widget exists,
+its secret is enabled in `sdj-production` Secret Manager, and the public site key
+is stored in Netlify's Production context. SendGrid sandbox validation succeeded;
+no real email was sent. The historical exposed key is absent from the provider's
+API-key list, and the deployed key is different.
+
 ## 1. Configure Turnstile
 
 Create a managed Cloudflare Turnstile widget for the Jamaat website. Allow only
@@ -87,6 +97,19 @@ never accept them. Do not point preview tests at production with a test secret.
 `cd functions && npm test && npm run lint` runs isolated regression tests with no
 real email or database writes. Quota tests substitute the Firestore transport;
 they do not prove deployed rules or emulator concurrency behavior.
+
+The separate real-Firestore concurrency test passed: 20 simultaneous requests
+for one email saved exactly 3 contacts, with all other attempts rate-limited.
+Repeat from the repository root with Java 21 and Firebase CLI installed:
+
+```shell
+npm --prefix functions run build
+firebase emulators:exec --only firestore --project demo-sdj-security --config firebase.contact-emulator.json 'node --test functions/test/contact-emulator.test.cjs'
+```
+
+This test uses a disposable local demo project and sends no email. It supplements
+the unit tests; it does not validate live email delivery or a real visitor's
+production Turnstile challenge.
 
 ## 4. Release and verify
 

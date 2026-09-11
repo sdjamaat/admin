@@ -1,0 +1,8 @@
+{
+  "emulators": {
+    "firestore": { "port": 8187 },
+    "ui": { "enabled": false },
+    "singleProjectMode": true
+  },
+  "firestore": { "rules": "functions/test/fixtures/contact-emulator.rules" }
+}

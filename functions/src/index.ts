@@ -1,6 +1,9 @@
-import * as functions from "firebase-functions"
+import * as functions from "firebase-functions/v1"
 import sgMail from "@sendgrid/mail"
-import * as admin from "firebase-admin"
+import { initializeApp } from "firebase-admin/app"
+import { getAuth } from "firebase-admin/auth"
+import { getFirestore } from "firebase-admin/firestore"
+const admin = { initializeApp, auth: getAuth, firestore: getFirestore }
 import { ThaaliSubmissionEmailData } from "./types"
 import { myCustomError } from "./logger"
 import { handleContact, reserveContact, verifyTurnstile } from "./contact"
