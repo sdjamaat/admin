@@ -3,7 +3,11 @@ import { useNavigate } from "react-router-dom"
 import { onSnapshot, doc } from "firebase/firestore"
 import { signOut as firebaseSignOut } from "firebase/auth"
 import { auth, db } from "../lib/firebase"
-import SecureLS from "secure-ls"
+import SecureLSModule from "secure-ls"
+
+const SecureLS =
+  (SecureLSModule as unknown as { default?: typeof SecureLSModule }).default ??
+  SecureLSModule
 
 const localEncryptedStore = new SecureLS({
   encodingType: import.meta.env.VITE_ENCRYPTION_TYPE,
