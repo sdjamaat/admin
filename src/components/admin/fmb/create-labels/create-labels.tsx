@@ -89,6 +89,7 @@ const CreateLabels = () => {
     setShouldOnlyPrintSalawaatThaalis,
   ] = React.useState<boolean>(false)
   const [fileName, setFileName] = React.useState("")
+  const [pastedData, setPastedData] = React.useState("")
   const [numStartingBlanks, setNumStartingBlanks] = React.useState<
     number | null
   >(0)
@@ -133,6 +134,41 @@ const CreateLabels = () => {
     setUniqueItemsAndCodesFromCurrDistributionDateData(newSelectionData)
   }
 
+  const processImportedRows = (
+    data: SingleImportedThaaliSelection[],
+    successMessage: string
+  ) => {
+    let allSelections: SingleImportedThaaliSelection[] = []
+    let distributionDateMap: DistributionDayMapType = {}
+
+    data.forEach((selection: SingleImportedThaaliSelection) => {
+      if (selection.Size !== "None") {
+        allSelections.push(selection)
+
+        if (selection["Distribution"]) {
+          const date = moment(selection["Distribution"])
+            .format("ddd-MMM-Do")
+            .toString()
+
+          selection["Distribution"] = date
+          if (distributionDateMap[date]) {
+            distributionDateMap[date].push(selection)
+          } else {
+            distributionDateMap[date] = [selection]
+          }
+        }
+      }
+    })
+
+    if (allSelections.length === 0) {
+      throw new Error("No data found")
+    }
+
+    setAllSelections(allSelections)
+    setDistributionDateMap(distributionDateMap)
+    CustomMessage("success", successMessage)
+  }
+
   const onImportExcel = (file: Blob) => {
     const fileReader = new FileReader()
     fileReader.onload = event => {
@@ -151,43 +187,12 @@ const CreateLabels = () => {
           //XLSX.utils.sheet_to_row_object_array(workbook.Sheets["chicken"])
           if (workbook.Sheets.hasOwnProperty(Sheet)) {
             // @ts-ignore
-            let data = XLSX.utils.sheet_to_row_object_array(
+            const data = XLSX.utils.sheet_to_row_object_array(
               workbook.Sheets[Sheet]
-            )
-            let allSelections: SingleImportedThaaliSelection[] = []
-            let distributionDateMap: DistributionDayMapType = {}
-
-            data.forEach((x: SingleImportedThaaliSelection) => {
-              if (x.Size !== "None") {
-                // first make array of items
-                allSelections.push(x)
-
-                // then make map of distribution dates
-                // {date: [selections]}
-                if (x["Distribution"]) {
-                  let date = moment(x["Distribution"])
-                    .format("ddd-MMM-Do")
-                    .toString()
-
-                  // doing this just to we save the date in the right format (string)
-                  x["Distribution"] = date
-                  if (distributionDateMap[date]) {
-                    distributionDateMap[date].push(x)
-                  } else {
-                    distributionDateMap[date] = [x]
-                  }
-                }
-              }
-            })
-
-            if (allSelections.length === 0) {
-              throw new Error("No data found in excel file")
-            }
-            setAllSelections(allSelections)
-            setDistributionDateMap(distributionDateMap)
+            ) as SingleImportedThaaliSelection[]
+            processImportedRows(data, "Successfully parsed Excel file")
 
             // break because we only care about the first sheet
-            CustomMessage("success", "Successfully parsed Excel file")
             break
           }
         }
@@ -198,6 +203,19 @@ const CreateLabels = () => {
       }
     }
     fileReader.readAsBinaryString(file)
+  }
+
+  const onImportPastedData = () => {
+    try {
+      const workbook = XLSX.read(pastedData, { type: "string", cellDates: true })
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]]
+      const data = XLSX.utils.sheet_to_json(
+        firstSheet
+      ) as SingleImportedThaaliSelection[]
+      processImportedRows(data, "Successfully parsed pasted data")
+    } catch (e) {
+      CustomMessage("error", "Error: Could not parse pasted data")
+    }
   }
 
   const setUniqueItemsAndCodesFromCurrDistributionDateData = (
@@ -618,6 +636,22 @@ const CreateLabels = () => {
             )}
           </Popover>
         </Upload>
+
+        <Divider>or paste spreadsheet data</Divider>
+        <Input.TextArea
+          value={pastedData}
+          onChange={event => setPastedData(event.target.value)}
+          placeholder="Paste rows copied from Excel, including the header row"
+          rows={5}
+        />
+        <Button
+          type="dashed"
+          disabled={!pastedData.trim()}
+          onClick={onImportPastedData}
+          style={{ marginTop: "8px" }}
+        >
+          Import Pasted Data
+        </Button>
 
         {Object.keys(distributionDateMap).length !== 0 && (
           <div>

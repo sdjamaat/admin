@@ -9,7 +9,7 @@ Administration portal for the San Diego Dawoodi Bohra Jamaat website and its mem
 - Create, edit, and remove Faiz-ul-Mawaid menus
 - Manage family enrollments and make thaali selections on a family's behalf
 - View, export, and delete menu submissions
-- Generate printable thaali labels from submission data
+- Generate printable thaali labels from submission data by uploading an Excel file or pasting copied Google Sheets rows
 - Deploy the Firebase Functions used by both the admin panel and member website
 
 ## Tech stack
